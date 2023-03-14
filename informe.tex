@@ -216,8 +216,22 @@ Para el modelado del sistema de izaje tenemos que considerar las limitaciones qu
 	\item La posición en y varía desde -20,0 m (dentro del barco) hasta +40,0 m (sobre el barco/muelle).
 	\item La altura del carro y del sistema de izaje es Yt0= +45,0 m
 	\item El despeje mínimo sobre el borde del muelle (“sill beam”) es Ysb= +15,0 m
-	\item Velocidad máxima : ±1,5 m/s (con carga nominal); ±3,0 m/s (sin carga). Esto es para mantenerse dentro de la curva de potencia constante durante el izaje. Ver figura (4).
+	\item Velocidad máxima : ±1,5 m/s (con carga nominal); ±3,0 m/s (sin carga). Esto es para mantenerse dentro de la curva de potencia constante durante el izaje. Ver figura \ref{fig:curva_potencia_motor}.
 \end{itemize}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/imagen_3_curva_pot_cte.png}
+	\caption{Característica de Potencia Constante - Carga suspendida vs. velocidad izaje.}
+	\label{fig:curva_potencia_motor}
+\end{figure}
+
+En base a las especificaciones anteriormente mencionadas y basados en la siguiente figura (5) que muestra el modelo físico del subsistema de izaje.
+
+Figura 5: Sistema de izaje de carga simplificado
+
+Aplicando la segunda ley de newton para sistemas rotacionales, se obtiene la siguiente ecuación para el eje del motor (eje rápido):
+
 
 \section{Análisis de tipos de carga}
 \subsection{Análisis con carga suspendida}
