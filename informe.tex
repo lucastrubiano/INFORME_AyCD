@@ -7,7 +7,7 @@
 % Replace `letterpaper' with`a4paper' for UK/EU standard size
 \usepackage[a4paper,top=1.9cm,bottom=3.2cm,left=1.9cm,right=1.32cm,marginparwidth=1.75cm]{geometry}
 
-\setlength{\parindent}{2em}
+\setlength{\parindent}{1em}
 \setlength{\parskip}{1em}
 
 % Useful packages
@@ -157,21 +157,67 @@ Donde:
 	\item $K_{tw}$ es la rigidez equivalente total a tracción del cable tensado de carro.
 	\item $b_{tw}$ es la fricción interna o amortiguamiento total del cable tensado de carro.
 \end{itemize}
-
-Si tenemos en cuenta el radio primitivo del tambor $r_{td}$ podemos expresar la ecuación \ref{eq:sistema_carro} como:
+Si tenemos en cuenta el radio primitivo del tambor $r_{td}$ y las relaciones $v_{td}(t)=r_{td}\cdot\omega_{td}(t)\ \ ;\ \ F_{tw}(t)\cdot r_{td} = T_{tdl}(t)$. Podemos expresar la ecuación \ref{eq:sistema_carro} referida al eje lento del tambor, como se muestra en la ecuación \ref{eq:sistema_carro_eje_lento}:
 
 \begin{equation}
 	\label{eq:sistema_carro_eje_lento}
-	M_{t}\cdot\dot{v}_{t}(t)=F_{tw}(t)-b_{t}\cdot v_{t}(t)+2\cdot F_{hw}(t)\cdot sin(\theta(t))
+	J_{td}\cdot \dot{\omega}_{td}(t)=T_{td}(t)-b_{td}\cdot\omega_{td}(t) - T_{tdl}(t)
 \end{equation}
 
-% A partir de esto podemos deducir la siguiente ecuación \ref{eq:sistema_carro}, que representa el comportamiento del sistema del carro, el cable de carro elástico amortiguado y el accionamiento de traslación del carro. Es decir, el sistema compuesto por (carro + despliege cable cerrado + tambor + caja reductora + motor + freno) cuya ecuación es:
-% \begin{equation}
-% 	\label{eq:sistema_carro}
-% 	J_{tm+tb}\cdot\dot{\omega}_{tm}(t)=T_{tm}(t)+T_{tb}(t,{\color{blue}BRK_{t}})-b_{tm}\cdot\omega_{tm}(t)-T_{tml}(t)
-% \end{equation}
+Donde:
+\begin{itemize}
+	\item $J_{td}$ es la inercia equivalente del eje lento (tambor y etapa de salida de la caja reductora).
+	\item $b_{td}$ es el coeficiente de fricción viscosa equivalente del eje lento.
+	\item $T_{td}$ es el torque de tracción del motor sobre el eje lento (a través de la caja reductora).
+	\item $T_{tdl}$ es el torque que ejerce el cable de carro sobre el tambor del eje lento.
+\end{itemize}
+
+Y teniendo en cuenta la relación de transmisión entre el motor y el tambor, $i_{t}$, y también las siguientes relaciones $\omega_{td}(t)\cdot i_{t} = \omega_{tm}(t) \ \ ;\ \ T_{td}(t)=i_{t}\cdot T_{tml}(t)$ . Podemos expresar la ecuación \ref{eq:sistema_carro_eje_lento} referida al eje rápido del motor, como se muestra en la ecuación \ref{eq:sistema_carro_eje_rapido}:
+
+\begin{equation}
+	\label{eq:sistema_carro_eje_rapido}
+	J_{tm+tb}\cdot\dot{\omega}_{tm}(t)=T_{tm}(t)+T_{tb}(t,{\color{blue}BRK_{t}})-b_{tm}\cdot\omega_{tm}(t)-T_{tml}(t)
+\end{equation}
+
+Donde:
+\begin{itemize}
+	\item $J_{tm+tb}$ es el momento de inercia equivalente del eje rápido (motor, disco de freno de operación y etapa de entrada de la caja reductora).
+	\item $b_{tm}$ es el coeficiente de fricción viscosa equivalente del eje rápido.
+	\item $T_{tb}$ es el torque del freno sobre el eje rápido.
+	\item $T_{tm}$ es el torque que ejerce el motor sobre el eje rápido.
+	\item $T_{tml}$ es el torque que ejerce la etapa de salida de la transmisión sobre el eje rápido.
+\end{itemize}
+
+Si tenemos en cuenta las ecuaciones \ref{eq:sistema_carro}, \ref{eq:sistema_carro_eje_lento} y \ref{eq:sistema_carro_eje_rapido}. Y las reemplazamos y operamos algebraicamente, podemos obtener la ecuación \ref{eq:sistema_carro_final} que representa el movimiento del carro:
+
+\begin{equation}
+	\label{eq:sistema_carro_final}
+	\begin{matrix}
+		M_{t}\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}+\frac{T_{tb}(t,{\color{blue}BRK_{t}})\cdot i_{t}}{r_{td}}-\frac{\left ( b_{td}+b_{tm}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot v_{td}-\frac{\left ( J_{td}+J_{tm+tb}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot \dot{v}_{td}
+		\\
+		\\
+		-b_{t}\cdot v_{t}+2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
+	\end{matrix}
+\end{equation}
+
+En base a la ecuación \ref{eq:sistema_carro_final} el diagrama de bloques del modelo del carro queda como se aprecia en la siguiente figura % \ref{fig:sistema_carro_simulink}:
+
+% \begin{figure}[H]
+% 	\centering
+% 	\includegraphics[width=0.8\textwidth]{}
+% 	\caption{Diagrama de bloques (Simulink) del modelo del carro.}
+% 	\label{fig:sistema_carro_simulink}
+% \end{figure}
 
 \subsection{Sistema de izaje de la carga}
+
+Para el modelado del sistema de izaje tenemos que considerar las limitaciones que detallaremos a continuación:
+\begin{itemize}
+	\item La posición en y varía desde -20,0 m (dentro del barco) hasta +40,0 m (sobre el barco/muelle).
+	\item La altura del carro y del sistema de izaje es Yt0= +45,0 m
+	\item El despeje mínimo sobre el borde del muelle (“sill beam”) es Ysb= +15,0 m
+	\item Velocidad máxima : ±1,5 m/s (con carga nominal); ±3,0 m/s (sin carga). Esto es para mantenerse dentro de la curva de potencia constante durante el izaje. Ver figura (4).
+\end{itemize}
 
 \section{Análisis de tipos de carga}
 \subsection{Análisis con carga suspendida}
