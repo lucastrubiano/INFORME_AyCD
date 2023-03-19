@@ -5,13 +5,14 @@
 
 % Set page size and margins
 % Replace `letterpaper' with`a4paper' for UK/EU standard size
-\usepackage[a4paper,top=1.9cm,bottom=3.2cm,left=1.9cm,right=1.32cm,marginparwidth=1.75cm]{geometry}
+\usepackage[a4paper,top=1.9cm,bottom=2.2cm,left=1.9cm,right=1.32cm,marginparwidth=1.75cm]{geometry}
 
 \setlength{\parindent}{1em}
 \setlength{\parskip}{1em}
 
 % Useful packages
 \usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{xcolor}
 % \usepackage{color}% xcolor or color
@@ -89,7 +90,7 @@ Una vez que se tiene este modelo, es hora de avanzar al siguiente paso crítico:
 \par
 Con el sistema de control diseñado y optimizado, es hora de pasar a la fase de prueba. Aquí, el autómata se convierte en código usando la plataforma de programación \textbf{CODESYS} y se simula el funcionamiento completo del sistema. Se evalúan el rendimiento y la precisión del sistema en condiciones de operación, y se realiza una evaluación rigurosa para garantizar que el sistema cumpla con todas las especificaciones requeridas.
 \par
-Finalmente, se presentan los \textbf{resultados} obtenidos y las \textbf{conclusiones} finales. Aquí se discuten los logros del proyecto, se identifican las lecciones aprendidas y se destacan los aspectos a mejorar. Se presentan los resultados en un informe completo que destaca los aspectos más importantes.
+Finalmente, se presentan los \textbf{resultados} obtenidos y las \textbf{conclusiones} finales. Aquí se discuten los logros del proyecto, se identifican las lecciones aprendidas y se destacan los aspectos a mejorar.
 
 \section{Modelado del sistema}
 
@@ -131,7 +132,7 @@ Luego si analizamos la siguiente figura \ref{fig:sistema_carro} donde se esquema
 	\includegraphics[width=1\textwidth]{images/imagen_2_sistema_carro.png}
 	\caption{\label{fig:sistema_carro} Diseño esquemático del sistema del carro.}
 \end{figure}
-
+\newpage
 A partir de esto podemos deducir la siguiente ecuación \ref{eq:sistema_carro}, que representa el movimiento del carro:
 \begin{equation}
 	\label{eq:sistema_carro}
@@ -193,14 +194,14 @@ Si tenemos en cuenta las ecuaciones \ref{eq:sistema_carro}, \ref{eq:sistema_carr
 \begin{equation}
 	\label{eq:sistema_carro_final}
 	\begin{matrix}
-		M_{t}\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}+\frac{T_{tb}(t,{\color{blue}BRK_{t}})\cdot i_{t}}{r_{td}}-\frac{\left ( b_{td}+b_{tm}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot v_{td}-\frac{\left ( J_{td}+J_{tm+tb}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot \dot{v}_{td}
+		M_{t}\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}+\frac{T_{tb}(t,{\color{blue}BRK_{t}})\cdot i_{t}}{r_{td}}-\frac{\left ( b_{td}+b_{tm}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot v_{td}-\frac{\left ( J_{td}+J_{tm+tb}\cdot{i_{t}}^{2} \right )}{{r_{td}}^{2}}\cdot \dot{v}_{td}\ \ ...
 		\\
 		\\
-		-b_{t}\cdot v_{t}+2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
+		...\ \ -b_{t}\cdot v_{t}+2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
 	\end{matrix}
 \end{equation}
 
-En base a la ecuación \ref{eq:sistema_carro_final} el diagrama de bloques del modelo del carro queda como se aprecia en la siguiente figura \ref{fig:sistema_carro_simulink}:
+En base a la ecuación \ref{eq:sistema_carro_final} el diagrama de bloques en Simulink del modelo del carro queda como se aprecia en la siguiente figura \ref{fig:sistema_carro_simulink}:
 
 \begin{figure}[h!]
 	\centering
@@ -224,20 +225,23 @@ Para el modelado del sistema de izaje tenemos que considerar las limitaciones qu
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{images/imagen_4_curva_pot_cte.png}
+	\includegraphics[width=0.7\textwidth]{images/imagen_4_curva_pot_cte.png}
 	\caption{Característica de Potencia Constante - Carga suspendida vs. velocidad izaje.}
 	\label{fig:curva_potencia_motor}
 \end{figure}
 
-En base a dichas especificaciones y en la siguiente figura \ref{fig:sistema_izaje} que muestra el modelo físico del sistema de izaje.
-Si aplicamos la segunda ley de newton para sistemas rotacionales, se obtiene la siguiente ecuación para el eje del motor (eje rápido):
+\newpage
 
-\begin{figure}
+En base a dichas especificaciones y en la siguiente figura \ref{fig:sistema_izaje} que muestra el modelo físico del sistema de izaje.
+
+\begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{images/imagen_5_sistema_izaje.png}
+	\includegraphics[width=0.85\textwidth]{images/imagen_5_sistema_izaje.png}
 	\caption{Diseño esquemático del sistema de izaje y frenos.}
 	\label{fig:sistema_izaje}
 \end{figure}
+
+Si aplicamos la segunda ley de newton para sistemas rotacionales, se obtiene la siguiente ecuación para el eje del motor (eje rápido):
 
 \begin{equation}
 	\label{eq:sistema_izaje_eje_rapido}
@@ -253,6 +257,71 @@ Donde:
 	\item $T_{hb}$ es el torque que ejerce el disco de freno de operación sobre el eje rápido.
 	\item $T_{hml}$ es el torque que ejerce la etapa de salida de la transmisión y las cargas referidas al eje rápido.
 \end{itemize}
+
+De forma equivalente, podemos plantear el modelo referido al eje del tambor (eje lento). Teniendo en cuenta que $i_{h}$ es la relación de reducción entre el eje rápido y el eje lento, podemos decir que $\omega_{hd}\cdot i_{h}=\omega_{hm}$ y que $T_{hd}=i_{h}\cdot T_{hml}$.
+Así obtenemos la siguiente ecuación \ref{eq:sistema_izaje_eje_lento}:
+
+\begin{equation}
+	\label{eq:sistema_izaje_eje_lento}
+	J_{hd+hEb}\cdot\dot{\omega}_{hd}(t)=T_{hd}(t)+T_{hEb}(t,{\color{blue}BRK_{hE}})-b_{hd}\cdot\omega_{hd}(t)-T_{hdl}(t)
+\end{equation}
+
+Donde:
+
+\begin{itemize}
+	\item $J_{hd+hEb}$ es el momento de inercia equivalente del eje lento (tambor, disco de freno de emergencia y etapa de salida de la caja reductora).
+	\item $b_{hd}$ es el coeficiente de fricción viscosa equivalente del eje lento.
+	\item $T_{hd}$ es el torque que mueve el tambor, referido al eje lento.
+	\item $T_{hEb}$ es el torque que ejerce el disco de freno de emergencia sobre el eje lento.
+	\item $T_{hdl}$ es el torque de carga referido al eje lento.
+\end{itemize}
+
+Además considerando la siguiente ecuación \ref{eq:sistema_izaje_lh} que relaciona la posición ideal que tendría el extremo $x_{h}(t)$ en función de la longitud de cable desenrollada $l_{h}(t)$:
+
+\begin{equation}
+	\label{eq:sistema_izaje_lh}
+	Y_{t0}-l_{h}(t)\equiv x_{h}(t) \Rightarrow -\dot{l_{h}}(t)=\dot{x}_{h}(t)\equiv v_{h}(t)
+\end{equation}
+
+Y si además tenemos en cuenta el radio primitivo del tambor de izaje $r_{hd}$, podemos decir que:
+
+\begin{equation}
+	\label{eq:sistema_izaje_vh}
+	2\cdot v_{h}(t)=r_{hd}\cdot \omega_{hd}(t)\ \ \ ;\ \ \ F_{hw}(t)\cdot r_{hd}=T_{hdl}(t)
+\end{equation}
+
+Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}, \ref{eq:sistema_izaje_eje_lento}, \ref{eq:sistema_izaje_lh} y \ref{eq:sistema_izaje_vh}. Reemplazando y acomodando términos podemos llegar a la siguiente ecuación \ref{eq:sistema_izaje_final}:
+
+\begin{equation}
+	\label{eq:sistema_izaje_final}
+	\begin{matrix}
+		2\left ( \frac{{i_{h}}^{2}J_{hm+hb}+J_{hd+hEb}}{{r_{hd}}^{2}} \right )\dot{v}_{h}=\frac{i_{h}\left ( T_{hm}(t)+T_{hb}(t,{\color{blue}BRK_{h}}) \right )+T_{hEb}(t,{\color{blue}BRK_{hE}})}{r_{hd}}\ \ ...
+		\\
+		\\
+		...\ \ -2\left ( \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}} \right )v_{h}-F_{hw}
+	\end{matrix}
+\end{equation}
+
+Notemos que la ecuación \ref{eq:sistema_izaje_final} está en función de la posición $x_{h}(t)$, la velocidad $v_{h}(t)$ y la aceleración $\dot{v}_{h}(t)$ del extremo ideal (si no estuviera estirado el cable). Por lo tanto, la fuerza que experimenta el cable, que tiene en cuenta la longitud de cable desenrollada y la longitud real del cable (consecuencia del estiramiento) tiene la siguiente ecuación \ref{eq:sistema_izaje_fuerza_cable}:
+
+\begin{equation}
+	\label{eq:sistema_izaje_fuerza_cable}
+	\left\{
+		\begin{matrix*}[l]
+		F_{hw}(t)=2\cdot K_{w}\left ( l_{h}(t) \right )\cdot \left ( l(t)-l_{h}(t) \right )+2\cdot b_{w}\left ( l_{h}(t) \right )\cdot ( \dot{l}(t)-\dot{l_{h}}(t) ) \ \ \Leftrightarrow\ \ l(t)\geq l_{h}(t)
+		\\
+		\\ 
+		F_{hw}(t)= 0\ \ \Leftrightarrow\ \ l(t)<l_{h}(t)
+		\end{matrix*}
+	\right.
+\end{equation}
+
+Donde:
+
+\begin{equation}
+	\label{eq:sistema_izaje_fuerza_cable_params}
+	K_{w}\left ( l_{h}(t) \right )=\frac{K_{wu}}{2\cdot l_{h}(t)+110\ m}\ \ \ ;\ \ \ b_{w}\left ( l_{h}(t) \right )=b_{wu}\cdot \left ( 2\cdot l_{h}(t)+110\ m \right )
+\end{equation}
 
 \section{Análisis de tipos de carga}
 \subsection{Análisis con carga suspendida}
