@@ -110,6 +110,8 @@ El sistema planteado es de una complejidad considerable, por lo cuál, para los 
 \end{itemize}
 
 \subsection{Sistema de traslación del carro}
+\label{section:carro}
+
 Comencemos por el primer sistema de movimiento. Respecto del carro que se mueve en dirección horizontal, debemos tener en cuenta las siguientes especificaciones:
 \begin{itemize}
 	\item La posición $x_{t}$ varía desde $-30.0\ m$ (en el muelle) hasta $+50.0\ m$ (en el barco).
@@ -201,11 +203,11 @@ Si tenemos en cuenta las ecuaciones \ref{eq:sistema_carro}, \ref{eq:sistema_carr
 	\end{matrix}
 \end{equation}
 
-En base a la ecuación \ref{eq:sistema_carro_final} el diagrama de bloques en Simulink del modelo del carro queda como se aprecia en la siguiente figura \ref{fig:sistema_carro_simulink}:
+En base a las ecuaciones \ref{eq:sistema_carro_final} y \ref{eq:f_tw} el diagrama de bloques en Simulink del modelo del carro queda como se aprecia en la siguiente figura \ref{fig:sistema_carro_simulink}:
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.8\textwidth]{images/imagen_3_simulink_carro.png}
+	\includegraphics[width=1\textwidth]{images/imagen_3_simulink_carro.png}
 	\caption{Diagrama de bloques (Simulink) del modelo del carro.}
 	\label{fig:sistema_carro_simulink}
 \end{figure}
@@ -213,6 +215,7 @@ En base a la ecuación \ref{eq:sistema_carro_final} el diagrama de bloques en Si
 \newpage
 
 \subsection{Sistema de izaje de la carga}
+\label{section:izaje}
 
 Para el modelado del sistema de izaje tenemos que considerar las limitaciones que detallaremos a continuación:
 \begin{itemize}
@@ -295,14 +298,29 @@ Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}
 \begin{equation}
 	\label{eq:sistema_izaje_final}
 	\begin{matrix}
-		2\left ( \frac{{i_{h}}^{2}J_{hm+hb}+J_{hd+hEb}}{{r_{hd}}^{2}} \right )\dot{v}_{h}=\frac{i_{h}\left ( T_{hm}(t)+T_{hb}(t,{\color{blue}BRK_{h}}) \right )+T_{hEb}(t,{\color{blue}BRK_{hE}})}{r_{hd}}\ \ ...
+		2\left ( \frac{{i_{h}}^{2}J_{hm+hb}+J_{hd+hEb}}{{r_{hd}}^{2}} \right )\ddot{l}_{h}=-\frac{i_{h}\left ( T_{hm}(t)+T_{hb}(t,{\color{blue}BRK_{h}}) \right )+T_{hEb}(t,{\color{blue}BRK_{hE}})}{r_{hd}}\ \ ...
 		\\
 		\\
-		...\ \ -2\left ( \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}} \right )v_{h}-F_{hw}
+		...\ \ -2\left ( \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}} \right )\dot{l}_{h}+F_{hw}
 	\end{matrix}
 \end{equation}
 
-Notemos que la ecuación \ref{eq:sistema_izaje_final} está en función de la posición $x_{h}(t)$, la velocidad $v_{h}(t)$ y la aceleración $\dot{v}_{h}(t)$ del extremo ideal (si no estuviera estirado el cable). Por lo tanto, la fuerza que experimenta el cable, que tiene en cuenta la longitud de cable desenrollada y la longitud real del cable (consecuencia del estiramiento) tiene la siguiente ecuación \ref{eq:sistema_izaje_fuerza_cable}:
+
+En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje queda como se aprecia en la siguiente figura \ref{fig:sistema_izaje_simulink}:
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/imagen_6_simulink_izaje.png}
+	\caption{Diagrama de bloques (Simulink) del modelo del izaje.}
+	\label{fig:sistema_izaje_simulink}
+\end{figure}
+
+\newpage
+
+\subsection{Análisis de tipos de carga}
+\label{section:carga}
+
+Previamente vimos que en la ecuación \ref{eq:sistema_izaje_final}, hay un término $F_{hw}(t)$ que representa la fuerza que experimenta el cable. El sistema de izaje está formado por 4 cables (1 por cada esquina del headblock) pero vamos a considerarlo como uno sólo con un modelo equivalente elástico-amortiguado dado por la siguiente ecuación \ref{eq:sistema_izaje_fuerza_cable}:
 
 \begin{equation}
 	\label{eq:sistema_izaje_fuerza_cable}
@@ -323,9 +341,148 @@ Donde:
 	K_{w}\left ( l_{h}(t) \right )=\frac{K_{wu}}{2\cdot l_{h}(t)+110\ m}\ \ \ ;\ \ \ b_{w}\left ( l_{h}(t) \right )=b_{wu}\cdot \left ( 2\cdot l_{h}(t)+110\ m \right )
 \end{equation}
 
-\section{Análisis de tipos de carga}
-\subsection{Análisis con carga suspendida}
-\subsection{Análisis con carga apoyada}
+Si tenemos en cuenta el tipo de carga al que puede estar sometido el cable, podemos tener en consideración 3 casos con diferentes límites. Los mismos son:
+
+\begin{itemize}
+	\item \textbf{Vacío:} sólo se considera la masa de Spreader + Headblock (sin container). $m_{l0}=15000\ Kg$
+	\item \textbf{Carga suspendida:} esto es la masa $m_{l0}$ más el peso del contenedor. La masa total varía según el peso del contenedor entre:
+		\subitem \textbf{Máxima o nominal:} $m_{l}=65000\ Kg$.
+		\subitem \textbf{Mínima:} Con contenedor vacío de $2000\ Kg$. Masa total $m_{min}=17000\ Kg$.
+		\subitem \textbf{Intermedio:} Es un estado intermedio entre los anteriores $m_{min}<m_{x}<m_{max}$.
+	\item \textbf{Carga apoyada:} Este es un caso particular que representa el estado de operación con carga no suspendida.
+	
+\end{itemize}
+
+Algo más a tener en cuenta es que cuando la carga está apoyada hay una reacción de vínculo elástico (sin deformación plástica), entre la carga y el suelo. Osea hay una compresión debido a la gravedad $g=9.80665\ \frac{m}{s^{2}}$. Para modelar este comportamiento se consideraron los siguientes parámetros:
+\begin{itemize}
+	\item Rigidez y coeficiente de fricción vertical (compresión): $K_{cy}=1.8\cdot 10^{9}\ \frac{N}{m}$ y $b_{cy}=1.0\cdot 10^{7}\ \frac{N}{m/s}$
+	\item Coeficiente de fricción horizontal (arrastre): $b_{cx}=1.0\cdot 10^{6}\ \frac{N}{m/s}$
+\end{itemize}
+
+\subsubsection{Análisis con carga suspendida}
+
+Con lo visto previamente ya sabemos que, el cable equivalente no soporta compresión. Ya que en tal caso se doblaría. Por ende, si se denomina $l(t)$ a la longitud del cable fuera del tambor estirado y $l_{h}(t)$ a la longitud del cable desenrollado sin estar sometido a ninguna fuerza.
+
+Además si consideramos pequeñas deformaciones, dentro del límite elástico. Es válida la Ley de Hooke para sistemas amortiguados. Es decir, que la fuerza que experimenta el cable es proporcional a la deformación del mismo según la ecuación \ref{eq:sistema_izaje_fuerza_cable}.
+
+Entonces, si analizamos la siguiente imagen \ref{fig:sistema_pendulo} podemos ver que la longitud del cable $l(t)$ es mayor que la longitud del cable desenrollado $l_{h}(t)$ cuando la carga está suspendida. Por lo tanto, la fuerza que experimenta el cable es positiva y el sistema de izaje se estira. En el caso contrario, la fuerza del cable es nula.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/imagen_7_sistema_pendulo.png}
+	\caption{Sistema de izaje con carga suspendida.}
+	\label{fig:sistema_pendulo}
+\end{figure}
+
+\newpage
+
+En base a este modelo podemos plantear la siguiente ecuación \ref{eq:sistema_pendulo_cinematica} que representa un cambio de coordenadas globales a locales de movimiento.
+
+\begin{equation}
+	\label{eq:sistema_pendulo_cinematica}
+	\left\{
+		\begin{matrix*}[l]
+		x_{l}(t)=x_{t}(t) + l(t)\cdot \sin(\theta(t))
+		\\
+		\\ 
+		y_{l}(t)=Y_{t0} - l(t)\cdot \cos(\theta(t))
+		\end{matrix*}
+	\right.
+\end{equation}
+
+Dicha ecuación también se puede expresar como:
+
+\begin{equation}
+	\label{eq:sistema_pendulo_cinematica_raiz_tangente}
+	\left\{
+		\begin{matrix*}[l]
+		l(t)=\sqrt{\left ( x_{l}(t)-x_{t}(t) \right )^{2}+\left ( Y_{t0}-y_{l}(t) \right )^{2}}
+		\\
+		\\ 
+		\theta(t)=\arctan \left ( \frac{x_{l}(t)-x_{t}(t)}{Y_{t0}-y_{l}(t)} \right )
+		\end{matrix*}
+	\right.
+\end{equation}
+
+Y cuyo gráfico se muestra en la figura \ref{fig:sistema_pendulo_cinematica_raiz_tangente}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/imagen_8_sistema_pendulo_cinematica_raiz_tangente.png}
+	\caption{Gráfico de la ecuación \ref{eq:sistema_pendulo_cinematica_raiz_tangente}.}
+	\label{fig:sistema_pendulo_cinematica_raiz_tangente}
+\end{figure}
+
+\newpage
+
+La dinámica del sistema se puede expresar como la siguiente ecuación \ref{eq:sistema_pendulo_dinamica_carga_suspendida}, sólo para carga suspendida donde $y_{l}(t)-h_{c}({\color{blue}TLK})>y_{c0}(x,y)$:
+
+\begin{equation}
+	\label{eq:sistema_pendulo_dinamica_carga_suspendida}
+	\left\{
+		\begin{matrix*}[l]
+		m_{l}({\color{blue}TLK})\cdot \dot{v}_{xl}(t)= -2 \cdot F_{hw}(t)\cdot \sin(\theta(t))
+		\\
+		\\ 
+		m_{l}({\color{blue}TLK})\cdot \dot{v}_{yl}(t)=2 \cdot F_{hw}(t)\cdot \cos(\theta(t))-m_{l}({\color{blue}TLK})\cdot g
+		\end{matrix*}
+	\right.
+\end{equation}
+
+\subsubsection{Análisis con carga apoyada}
+
+Si en cambio no encontramos en la condición de la carga apoyada, es decir, $y_{l}(t)-h_{c}({\color{blue}TLK})\geq y_{c0}(x,y)$, entonces la ecuación \ref{eq:sistema_pendulo_dinamica_carga_suspendida} queda como la siguiente ecuación \ref{eq:sistema_pendulo_dinamica_carga_apoyada}:
+
+\begin{equation}
+	\label{eq:sistema_pendulo_dinamica_carga_apoyada}
+	\left\{
+		\begin{matrix*}[l]
+		m_{l}({\color{blue}TLK})\cdot \dot{v}_{xl}(t)= -2 \cdot F_{hw}(t)\cdot \sin(\theta(t))-b_{cx}\cdot v_{xl}(t)
+		\\
+		\\ 
+		m_{l}({\color{blue}TLK})\cdot \dot{v}_{yl}(t)=2 \cdot F_{hw}(t)\cdot \cos(\theta(t))-m_{l}({\color{blue}TLK})\cdot g + K_{cy} \left ( y_{c0}(x,t)-y_{l}(t)+h_{c}({\color{blue}TLK}) \right )-b_{cy}\cdot v_{yl}(t)
+		\end{matrix*}
+	\right.
+\end{equation}
+
+De esta forma, obtenemos que el diagrama que representa las ecuaciones \ref{eq:sistema_pendulo_dinamica_carga_suspendida}, \ref{eq:sistema_pendulo_dinamica_carga_apoyada}, \ref{eq:sistema_izaje_fuerza_cable} y \ref{eq:sistema_izaje_fuerza_cable_params} es el siguiente:
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_9_sistema_pendulo_dinamica.png}
+	\caption{Diagrama de la dinámica del sistema.}
+	\label{fig:sistema_pendulo_dinamica}
+\end{figure}
+
+Donde si además consideramos las ecuaciones \ref{eq:sistema_pendulo_cinematica} y \ref{eq:sistema_pendulo_cinematica_raiz_tangente}, obtenemos el siguiente diagrama:
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_10_sistema_pendulo_cinematica_dinamica.png}
+	\caption{Diagrama en Simulink del modelo completo del pendulo.}
+	\label{fig:sistema_pendulo_cinematica_dinamica}
+\end{figure}
+
+\newpage
+
+Llegados a este punto, procedemos a unir los siguientes modelos físicos dando lugar al modelo de la planta que se muestra en la figura \ref{fig:sistema_completo}.
+\begin{itemize}
+	\item Carro \ref{section:carro}
+	\item Izaje \ref{section:izaje}
+	\item Carga \ref{section:carga}
+\end{itemize}
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_11_sistema_completo.png}
+	\caption{Diagrama en Simulink del modelo completo del pendulo.}
+	\label{fig:sistema_completo}
+\end{figure}
+
+% \subsection{Modos de freno mecánico}
+
+% \subsection{Controladores internos de torque}
 
 \section{Sistemas de control}
 \subsection{Nivel 2 - Controladores de movimiento}
