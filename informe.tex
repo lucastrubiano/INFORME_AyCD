@@ -305,7 +305,6 @@ Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}
 	\end{matrix}
 \end{equation}
 
-
 En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje queda como se aprecia en la siguiente figura \ref{fig:sistema_izaje_simulink}:
 
 \begin{figure}[h!]
@@ -472,7 +471,6 @@ Llegados a este punto, procedemos a unir los siguientes modelos físicos dando l
 	\item Carga \ref{section:carga}
 \end{itemize}
 
-
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1\textwidth]{images/imagen_11_sistema_completo.png}
@@ -485,9 +483,172 @@ Llegados a este punto, procedemos a unir los siguientes modelos físicos dando l
 % \subsection{Controladores internos de torque}
 
 \section{Sistemas de control}
+
+Tal como se explicó anteriormente, el sistema físico a controlar consta de 2 movimientos principales: el de traslación del carro (horizontal, eje $x$) y el de izaje de la carga (vertical, eje $y$). Hay que tener en cuenta que ambos movimientos están acoplados ya que el sistema de izaje se desplaza junto con el movimiento del carro. Y además la carga (spreader y contenedor) se balancea, suspendida del carro que la traslada mediante los cables de izaje. Para poder controlar de forma eficiente estos movimientos se consideran los siguientes niveles de control para un autómata híbrido de control:
+
+\begin{itemize}
+	\item \textbf{Nivel 0:} Este es el control de seguridad que consiste en un autómata reducido y confiable, que es el encargado de actuar o accionar ante falla crítica de niveles inferiores y/o riesgo de seguridad.
+	\item \textbf{Nivel 1:} Este es el control supervisor global y es un control de estados discretos activados por eventos, con estructura jerárquica y/o concurrencia, para una operación suave y eficiente con coordinación y optimización de trayectorias, es un control de operación global del sistema que además cuenta con diagnóstico (alarmas y fallas).
+	\item \textbf{Nivel 2:} Acá se encuentran los controladores de movimiento de estados continuos en tiempo discreto. Son los que reciben las consignas de movimiento individuales del control supervisor para el control de cada uno de los movimientos principales.
+\end{itemize}
+
 \subsection{Nivel 2 - Controladores de movimiento}
+Los controladores de este nivel son del tipo PID para los movimientos de traslación del carro y de izaje de la carga, y además también tienen en cuenta el modelo de balanceo de la carga.
+
+Para cada uno de estos plantearemos transformadas de Laplace para luego obtener las funciones de transferencia del sistema. Una vez conocidas dichas funciones de transferencia, se procederá a obtener los polos y ceros del sistema, para así poder obtener los parámetros óptimos de los controladores PID.
+
+\newpage
+
 \subsubsection{Controlador de posición del carro}
+Recordando la ecuación \ref{eq:sistema_carro_final}, ecuación final que modela el movimiento del carro, si la expresamos en función de su velocidad. Teniendo en cuenta la simplificación $v_{td}(t)\simeq v_{t}(t)$ obtenemos la siguiente ecuación \ref{eq:sistema_carro_simplificado}:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado}
+	\left ( M_{t}+ \frac{J_{td}+J_{tm+tb}\cdot{i_{t}}^{2}}{{r_{td}}^{2}} \right )\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}-\left (b_{t} +\frac{b_{td}+b_{tm}\cdot{i_{t}}^{2}}{{r_{td}}^{2}} \right )\cdot v_{t} + 2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
+\end{equation}
+
+Donde vamos a decir que:
+
+\begin{equation}
+	\label{eq:sistema_carro_masa_equivalente}
+	M_{eqt} = \left ( M_{t}+ \frac{J_{td}+J_{tm+tb}\cdot{i_{t}}^{2}}{{r_{td}}^{2}} \right )
+\end{equation}
+
+y
+
+\begin{equation}
+	\label{eq:sistema_carro_friccion_equivalente}
+	b_{eqt} = b_{t} +\frac{b_{td}+b_{tm}\cdot{i_{t}}^{2}}{{r_{td}}^{2}}
+\end{equation}
+
+Con esto ahora podemos decir que la ecuación \ref{eq:sistema_carro_simplificado}, aplicando además tansformada de Laplace. Y aplicando el cambio de $F_{l}(s)=F_{hw}(s) \cdot sin \left ( \theta(s) \right )$ se puede escribir como:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace}
+	M_{eqt}\cdot s\cdot V_{t}(s) = \frac{T_{tm}(s)\cdot i_{t}}{r_{td}}-b_{eqt}\cdot V_{t}(s) + 2\cdot F_{l}(s)
+\end{equation}
+
+Reordenando la ecuación \ref{eq:sistema_carro_simplificado_laplace} obtenemos:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace_reordenado}
+	\left ( M_{eqt}\cdot s+b_{eqt} \right )\cdot V_{t}(s) = \frac{T_{tm}(s)\cdot i_{t}}{r_{td}}+ 2\cdot F_{l}(s)
+\end{equation}
+
+Donde $V_{t}(t)$ es la velocidad del carro. Y como se puede apreciar en la ecuación \ref{eq:sistema_carro_simplificado_laplace_reordenado} se tienen 3 entradas del sistema: el torque del motor del carro $T_{tm}(s)$, el torque del freno de operación del carro $T_{tb}$ y la fuerza que ejerce la carga sobre el carro $2\cdot F_{l}(s)$. Así, se tiene una función de transferencia para cada una de ellas:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace_G1t}
+	G_{1t}(s)=\frac{V_{t}(s)}{T_{tm}(s)}=\frac{i_{t}}{r_{td}\cdot (M_{eqt}\cdot s+b_{eqt})}
+\end{equation}
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace_G2t}
+	G_{2t}(s)=\frac{V_{t}(s)}{F_{l}(s)}=\frac{2}{M_{eqt}\cdot s+b_{eqt}}
+\end{equation}
+
+Como las entradas de control son de torque, las ecuaciones de interés son $G_{1t}(s)$. Los polos de dichas ecuaciones se ubican en:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace_polos}
+	\omega_{G1t}=-\frac{b_{eqt}}{M_{eqt}}
+\end{equation}
+
+Siempre buscamos tener una respuesta del controlador óptima por lo cuál la misma debe ser más rápida que la velocidad de respuesta de la planta. Para esto aplicamos el método de sintonía serie y definimos que la frecuencia del controlador $\omega_{post}=10\cdot \omega_{G_{1t}}$ y para tener un sistema  subamortiguado se adopta un factor $n_{t}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. De esa forma obtenemos con el método las siguientes ganancias del controlador:
+
+\begin{itemize}
+	\item Proporcional $\rightarrow K_{pc} = M_{eqt}\cdot n_{t}\cdot {\omega_{post}}^{2} = 1.961 \cdot 10^6$
+	\item Integral $\rightarrow K_{ic} = M_{eqt}\cdot {\omega_{post}}^{3}  = 7.089 \cdot 10^6$
+	\item Derivativo $\rightarrow K_{dc} = M_{eqt}\cdot n_{t}\cdot {\omega_{post}} = 5.42 \cdot 10^5$
+\end{itemize}
+
+Así llegamos a la ecuación genérica del control PID de movimiento horizontal que nos queda de la siguiente forma:
+
+\begin{equation}
+	\label{eq:sistema_carro_simplificado_laplace_controlador}
+	T_{mc}^{*}(s)=G_{T}(s)\left [ K_{dc}+\frac{1}{s}\cdot K_{pc}+\frac{1}{s^{2}}\cdot K_{ic} \right ] e_{dxt}(s)
+\end{equation}'
+
+Podemos observar que el error a medir es de velocidad, no de posición. Esto se debe a que el controlador planteado utiliza 2 integradores para evitar el uso de derivadores, que amplifican el ruido. El diagrama de bloques nos queda:
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_12_controlador_carro.png}
+	\caption{Diagrama en Simulink del controlador del carro.}
+	\label{fig:controlador_carro_simulink}
+\end{figure}
+
+
 \subsubsection{Controlador del izaje de la carga}
+
+Si analizamos ahora el sistema de izaje de la carga y tomando el modelo dinámico dado por la ecuación \ref{eq:sistema_izaje_final}. Reescribiendo $M_{eqh}$ y $b_{eqh}$:
+
+\begin{equation}
+	\label{eq:sistema_izaje_masa_equivalente}
+	M_{eqh} = \frac{{i_{h}}^{2}J_{hm+hb}+J_{hd+hEb}}{{r_{hd}}^{2}}
+\end{equation}
+
+\begin{equation}
+	\label{eq:sistema_izaje_friccion_equivalente}
+	b_{eqh} = \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}}
+\end{equation}
+
+Así despejando la ecuación \ref{eq:sistema_izaje_final} junto con las que acabamos de mencionar. Si la expresamos en función de su velocidad (para evitar usar un derivador) y se trata a la fuerza de la carga como una perturbación del sistema. Podemos aplicar transformada de Laplace y obtener las siguientes ecuaciones:
+
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace}
+	2\cdot s\ M_{eqh} V_{lh}(s)=-\frac{ T_{hm}(s)\cdot i_{h}}{r_{hd}}-2\ b_{eqh} V_{lh}(s)+F_{hw}(s)
+\end{equation}
+
+Reagrupando:
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace_reordenado}
+	2\cdot \left ( M_{eqh}\cdot s+b_{eqh} \right )\cdot V_{lh}(s) = \frac{T_{hm}(s)\cdot i_{h}}{r_{hd}}+ F_{hw}(s)
+\end{equation}
+
+Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la ecuación \ref{eq:sistema_izaje_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque $T_{hm}(s)$ y la tensión a la que se somete el cable $F_{hw}(s)$. Donde esto se puede expresar según las siguientes ecuaciones las funciones de transferencia para cada entrada:
+
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace_G1h}
+	G_{1h}(s)=\frac{V_{lh}(s)}{T_{hm}(s)}=\frac{i_{h}}{r_{hd}\cdot (M_{eqh}\cdot s+b_{eqh})}
+\end{equation}
+
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace_G2h}
+	G_{2h}(s)=\frac{V_{lh}(s)}{F_{hw}(s)}=\frac{2}{M_{eqh}\cdot s+b_{eqh}}
+\end{equation}
+
+Como la entrada de control es de torque, la ecuación de interés es $G_{1h}(s)$. Que tiene un polo que está ubicado en:
+
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace_polos}
+	\omega_{G1h}=-\frac{b_{eqh}}{M_{eqh}}
+\end{equation}
+
+Nuevamente tenemos que asegurar que la respuesta del controlador sea más rápida que la de la planta por lo cuál aplicando el método de sintonía serie con una frecuencia del controlador de $\omega_{posh}=10\cdot \omega_{G_{1h}}$. Y para obtener un sistema subamortiguado tomaremos un factor $n_{h}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. Así obtenemos las siguientes ganancias del controlador:
+
+\begin{itemize}
+	\item Proporcional $\rightarrow K_{pi} = M_{eqh}\cdot n_{h}\cdot {\omega_{posh}}^{2} = 1.2577 \cdot 10^5$
+	\item Integral $\rightarrow K_{ii} = M_{eqh}\cdot {\omega_{posh}}^{3}  = 2.3947 \cdot 10^5$
+	\item Derivativo $\rightarrow K_{di} = M_{eqh}\cdot n_{h}\cdot {\omega_{posh}} = 2.6424\cdot 10^4$
+\end{itemize}
+
+Quedando entonces, la ecuación genérica del PID del izaje como:
+
+\begin{equation}
+	\label{eq:sistema_izaje_simplificado_laplace_controlador}
+	T_{mi}^{*}(s)=G_{T}(s)\left [ K_{di}+\frac{1}{s}\cdot K_{pi}+\frac{1}{s^{2}}\cdot K_{ii} \right ] e_{dlh}(s)
+\end{equation}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_13_controlador_izaje.png}
+	\caption{Diagrama en Simulink del controlador de izaje.}
+	\label{fig:controlador_izaje_simulink}
+\end{figure}
+
+
+
 \subsubsection{Controlador del péndulo (ángulo de balanceo de la carga)}
 \subsection{Nivel 1 - Control supervisor}
 \subsection{Nivel 0 - Control de seguridad}
