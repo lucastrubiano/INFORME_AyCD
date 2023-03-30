@@ -1,0 +1,1 @@
+docker run --rm -t --user="$(id -u):$(id -g)" --net=none -v "$(pwd):/tmp" leplusorg/latex xelatex -xelatex -outdir=/tmp -pdf /tmp/informe.tex
