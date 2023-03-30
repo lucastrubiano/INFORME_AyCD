@@ -1,1 +1,2 @@
-docker run --rm -t --user="$(id -u):$(id -g)" --net=none -v "$(pwd):/tmp" leplusorg/latex xelatex -xelatex -outdir=/tmp -pdf /tmp/informe.tex
+# docker run --rm -t --user="$(id -u):$(id -g)" --net=none -v "$(pwd):/tmp" -v "$(pwd)/images:/images" leplusorg/latex latex -outdir=/tmp -pdf /tmp/informe.tex
+docker run --rm -t --user="$(id -u):$(id -g)" --net=none -v "$(pwd):/tmp" -v "$(pwd)/images:/images" leplusorg/latex -xelatex -outdir=/tmp -pdf /tmp/informe.tex
