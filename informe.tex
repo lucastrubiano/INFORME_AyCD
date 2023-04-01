@@ -1017,7 +1017,7 @@ En el nivel 1 del control supervisor global, se operan ocho etapas en paralelo: 
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=1\textwidth]{images/imagen_29_codesys_nivel_1.png}
+	\includegraphics[width=1\textwidth]{images/codesys_nivel_1.png}
 	\caption{Diagrama de Codesys del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1}
 \end{figure}
@@ -1028,47 +1028,132 @@ Para ver los detalles de la implementación de cada etapa, ver las figuras \ref{
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{images/imagen_30_codesys_nivel_1_marcha.png}
+	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_marcha.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}
 	\centering
-	\includegraphics[width=0.55\textwidth]{images/imagen_31_codesys_nivel_1_marcha_carga.png}
+	\includegraphics[width=0.55\textwidth]{images/codesys_nivel_1_marcha_carga.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Carga} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_carga}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}
 	\centering
-	\includegraphics[width=0.35\textwidth]{images/imagen_32_codesys_nivel_1_marcha_operacion.png}
+	\includegraphics[width=0.35\textwidth]{images/codesys_nivel_1_marcha_operacion.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_operacion}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}
 	\centering
-	\includegraphics[width=1\textwidth]{images/imagen_33_codesys_nivel_1_marcha_operacion_modo.png}
+	\includegraphics[width=1\textwidth]{images/codesys_nivel_1_marcha_operacion_modo.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Modo} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_operacion_modo}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}
 	\centering
-	\includegraphics[width=0.25\textwidth]{images/imagen_34_codesys_nivel_1_marcha_operacion_trayectoria.png}
+	\includegraphics[width=0.2\textwidth]{images/codesys_nivel_1_marcha_operacion_trayectoria.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Trayectoria} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_operacion_trayectoria}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}
 	\centering
-	\includegraphics[width=0.4\textwidth]{images/imagen_35_codesys_nivel_1_marcha_operacion_trayectoria_automatico.png}
+	\includegraphics[width=0.3\textwidth]{images/codesys_nivel_1_marcha_operacion_trayectoria_automatico.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Trayectoria /\ Automático} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_operacion_trayectoria_automatico}
 \end{figure}
 
-\section{Pruebas finales. Servidor OPC UA.}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.85\textwidth]{images/codesys_nivel_1_marcha_operacion_trayectoria_automatico_calculo_pos.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Trayectoria /\ Automático /\ Calculo Pos} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_operacion_trayectoria_automatico_calculo_pos}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_cable_flojo.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Cable Flojo} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_cable_flojo}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\textwidth]{images/codesys_nivel_1_longitud_lh.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Longitud Lh} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_longitud_lh}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_freno.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Freno} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_freno}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\textwidth]{images/codesys_nivel_1_balanceo.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Balanceo} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_balanceo}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_frenado_seguridad.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Frenado Seguridad} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_frenado_seguridad}
+\end{figure}
+
+\newpage
+
+\subsection{Codesys Nivel 0: Control de Seguridad o Protección}
+
+En el Nivel 0 de Control de Seguridad o Protección, se operan dos etapas en paralelo: \textbf{Emergencia} y \textbf{Watchdog}, lo que es análogo a los dos estados mencionados en la figura \ref{fig:nivel_0}. La etapa Emergencia detecta problemas en función del valor de los sensores y los pulsadores, y consta de tres estados no concurrentes que manejan cada uno de los estados de emergencia. Por último, la etapa Watchdog se encarga de detectar errores en la ejecución del controlador, reinicios inesperados, etc. A continuación se detallan los diagramas de Codesys de cada una de las etapas mencionadas desde la figura \ref{fig:codesys_nivel_0} hasta la figura \ref{fig:codesys_nivel_0_watchdog}.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/codesys_nivel_0.png}
+	\caption{Diagrama de Codesys del \textbf{Nivel 0}.}
+	\label{fig:codesys_nivel_0}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/codesys_nivel_0_emergency.png}
+	\caption{Diagrama de Codesys de la rutina \textbf{Emergency} del \textbf{Nivel 0}.}
+	\label{fig:codesys_nivel_0_emergency}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/codesys_nivel_0_emergency_fdc.png}
+	\caption{Diagrama de Codesys de la rutina \textbf{Emergency /\ Fdc} del \textbf{Nivel 0}.}
+	\label{fig:codesys_nivel_0_emergency_fdc}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/codesys_nivel_0_emergency_speed_limit.png}
+	\caption{Diagrama de Codesys de la rutina \textbf{Emergency /\ Speed Limit} del \textbf{Nivel 0}.}
+	\label{fig:codesys_nivel_0_emergency_speed_limit}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/codesys_nivel_0_watchdog.png}
+	\caption{Diagrama de Codesys de la rutina \textbf{Watchdog} del \textbf{Nivel 0}.}
+	\label{fig:codesys_nivel_0_watchdog}
+\end{figure}
+
+\subsection{Pruebas co-simulación. Servidor OPC UA.}
+
+
 \section{Resultados}
 \section{Conclusiones}
 \section{Referencias}
