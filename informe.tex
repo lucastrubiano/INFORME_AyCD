@@ -838,104 +838,244 @@ El controlador de nivel 1 es el que se encarga de supervisar los estados discret
 
 El autómata de nivel 1 se encarga de diseñar los ciclos de operación, generar trayectorias, calcular velocidades y manejar los comandos del usuario, entre otras funciones. Una de sus tareas más importantes es enviar las consignas de velocidad a los subsistemas de carro e izaje en función del estado y posición de la carga, siguiendo una trayectoria previamente generada y actualizándola durante el movimiento.
 
-Para lograr esto, se utilizó la herramienta StateFlow, que permitió estructurar 8 estados concurrentes principales (\textbf{MARCHA, CABLE FLOJO, LONGITUD LH, POS CONTAINER, FRENO, CONTROL BALANCEO, FRENADO SEGURIDAD}). En la figura \ref{fig:nivel_1} se puede observar el autómata y a continuación se explican detalladamente cada uno de los 8 estados.
+Para lograr esto, se utilizó la herramienta StateFlow, que permitió estructurar 8 estados concurrentes principales (\textbf{Marcha, Cable Flojo, Longitud Lh, Pos Container, Freno, Control Balanceo, Frenado Seguridad}). En la figura \ref{fig:nivel_1} se puede observar el autómata y a continuación se explican detalladamente cada uno de los 8 estados.
+
+\begin{itemize}
+
+	\item \textbf{Nivel 1 /\ Marcha:} Es el estado principal que coordina la operación de la grúa. Acá se analiza si la grúa está \textbf{Cargado} (con contenedor) o \textbf{Descargado} (sin contenedor). Además podemos pasar al modo de \textbf{Operación} donde existen 2 tareas concurrentes: la de \textbf{Modo} que puede ser automático o manual; y \textbf{Trayectoria} que según si estamos en manual o automático planifica el control y la trayectoria.
+	
+	\item \textbf{Nivel 1 /\ Marcha /\ Carga:} Es el primer estado del sistema, acá se resetean todas las variables y comenzamos por verificar el estado del sistema para determinar si está \textbf{Cargado} o \textbf{Descargado}. Además una vez que estamos cargados se procede a pesar la carga, luego hacemos el seteo de las velocidades máximas para mantener la curva de potencia constante (\textbf{Velocidad}). Y tenemos una acción extra para detectar si estamos en una condición de \textbf{Sobrepeso} o no. Ver figura \ref{fig:nivel_1_carga}.
+	
+	\item \textbf{Nivel 1 /\ Marcha /\ Operación /\ Modo:}  Es el encargado de determinar cuando operamos en un modo u otro. Si es \textbf{Manual} el operario no podrá superar las velocidades asignadas. El modo \textbf{Automático} se activa cuando salimos de la envolvente. Ver figura \ref{fig:nivel_1_modo}.
+	
+	\item \textbf{Nivel 1 /\ Marcha /\ Operación /\ Trayectoria:} En este modo se coordina el seguimiento de la trayectoria. Tenemos un proceso de \textbf{Calculo Posición} que determina las etapas del movimiento desde su posición inicial, el movimiento de \textbf{Hosting}, y hasta el final. También analiza si estamos en una trayectoria simple o combinada. Ver figura \ref{fig:nivel_1_trayectoria}.
+	
+	\item \textbf{Nivel 1 /\ Cable Flojo:} Es un bucle que nos indica cuando el cable está flojo o sin tensión. Esto es útil para mantener un estado de operación seguro y coherente ya que si el cable permanece flojo este se puede salir. A la vez nos sirve para determinar cuando el Twist Lock se puede abrir o cerrar para tomar o dejar el contenedor. Ver figura \ref{fig:nivel_1_cable_flojo}.
+	
+	\item \textbf{Nivel 1 /\ Longitud Lh:} Es un ciclo encargado de corregir en tiempo real la altura medida en función de si tenemos tomado o no un contenedor. Ver figura \ref{fig:nivel_1_longitud_lh}.
+	
+	\item \textbf{Nivel 1 /\ Pos Container:} Es un bucle que calcula la posición del contenedor en función de la posición del carro y el ángulo theta medido. También proporciona un margen de seguridad en la envolvente. Ver figura \ref{fig:nivel_1_pos_container}.
+	
+	\item \textbf{Nivel 1 /\ Freno:} Es el que coordina cuando abrir o cerrar los frenos tanto de operación como de emergencia. Aunque en el \textbf{Nivel 0} hay otro control adicional de los frenos en casos de emergencia del sistema o condiciones de operación peligrosas. Ver figura \ref{fig:nivel_1_freno}.
+	
+	\item \textbf{Nivel 1 /\ Control Balanceo:} Es un bucle que activa o desactiva en el \textbf{Nivel 2} el control del balanceo, según el ángulo medido. Ver figura \ref{fig:nivel_1_control_balanceo}.
+	
+	\item \textbf{Nivel 1 /\ Frenado Seguridad:} Es un proceso en donde se hace un frenado preventivo cuando detectamos que la posición tanto del carro como del izaje están llegando a alguno de sus límites operativos. Empieza a frenar por seguridad para no chocar. Adicional a esto si se llegara a chocar por alguna razon o llegaramos a los límites responde el \textbf{Nivel 0}. Ver figura \ref{fig:nivel_1_frenado_seguridad}.
+	
+\end{itemize}
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=1\textwidth]{images/imagen_16_automa_nivel_1.png}
-	\caption{Diagrama de StateFlow del controlador de NIVEL 1.}
+	\includegraphics[width=0.9\textwidth]{images/imagen_16_automa_nivel_1.png}
+	\caption{Diagrama de StateFlow del controlador de Nivel 1.}
 	\label{fig:nivel_1}
 \end{figure}
 
-\begin{itemize}
-	\item \textbf{NIVEL 1 >\ MARCHA:} Es el estado principal que coordina la operación de la grúa. Acá se analiza si la grúa está \textbf{CARGADO} (con contenedor) o \textbf{DESCARGADO} (sin contenedor). Además podemos pasar al modo de OPERACION donde existen 2 tareas concurrentes: la de \textbf{MODO} que puede ser automático o manual; y \textbf{TRAYECTORIA} que según si estamos en manual o automático planifica el control y la trayectoria.
-	\item \textbf{NIVEL 1 >\ MARCHA >\ CARGA:} Es el primer estado del sistema, acá se resetean todas las variables y comenzamos por verificar el estado del sistema para determinar si está \textbf{CARGADO} o \textbf{DESCARGADO}. Además una vez que estamos cargados se procede a pesar la carga, luego hacemos el seteo de las velocidades máximas para mantener la curva de potencia constante (\textbf{VELOCIDAD}). Y tenemos una acción extra para detectar si estamos en una condición de \textbf{SOBREPESO} o no. Ver figura \ref{fig:nivel_1_carga}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_17_nivel_1_carga.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ MARCHA >\ CARGA}.}
-		\label{fig:nivel_1_carga}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ MARCHA >\ OPERACION >\ MODO:}  Es el encargado de determinar cuando operamos en un modo u otro. Si es \textbf{MANUAL} el operario no podrá superar las velocidades asignadas. El modo \textbf{AUTOMATICO} se activa cuando salimos de la envolvente. Ver figura \ref{fig:nivel_1_modo}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_18_nivel_1_modo.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ MARCHA >\ OPERACION >\ MODO}.}
-		\label{fig:nivel_1_modo}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ MARCHA >\ OPERACION >\ TRAYECTORIA:} En este modo se coordina el seguimiento de la trayectoria. Tenemos un proceso de \textbf{CALCULO POSICION} que determina las etapas del movimiento desde su posición inicial, el movimiento de \textbf{HOSTING}, y hasta el final. También analiza si estamos en una trayectoria simple o combinada. Ver figura \ref{fig:nivel_1_trayectoria}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_19_nivel_1_trayectoria.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ MARCHA >\ OPERACION >\ TRAYECTORIA}.}
-		\label{fig:nivel_1_trayectoria}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ CABLE FLOJO:} Es un bucle que nos indica cuando el cable está flojo o sin tensión. Esto es útil para mantener un estado de operación seguro y coherente ya que si el cable permanece flojo este se puede salir. A la vez nos sirve para determinar cuando el Twist Lock se puede abrir o cerrar para tomar o dejar el contenedor. Ver figura \ref{fig:nivel_1_cable_flojo}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=0.8\textwidth]{images/imagen_20_nivel_1_cable_flojo.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ CABLE FLOJO}.}
-		\label{fig:nivel_1_cable_flojo}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ LONGITUD LH:} Es un ciclo encargado de corregir en tiempo real la altura medida en función de si tenemos tomado o no un contenedor. Ver figura \ref{fig:nivel_1_longitud_lh}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=0.7\textwidth]{images/imagen_21_nivel_1_longitud_lh.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ LONGITUD LH}.}
-		\label{fig:nivel_1_longitud_lh}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ POS CONTAINER:} Es un bucle que calcula la posición del contenedor en función de la posición del carro y el ángulo theta medido. También proporciona un margen de seguridad en la envolvente. Ver figura \ref{fig:nivel_1_pos_container}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=0.8\textwidth]{images/imagen_22_nivel_1_pos_container.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ POS CONTAINER}.}
-		\label{fig:nivel_1_pos_container}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ FRENO:} Es el que coordina cuando abrir o cerrar los frenos tanto de operación como de emergencia. Aunque en el \textbf{NIVEL 0} hay otro control adicional de los frenos en casos de emergencia del sistema o condiciones de operación peligrosas. Ver figura \ref{fig:nivel_1_freno}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_23_nivel_1_freno.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ FRENO}.}
-		\label{fig:nivel_1_freno}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ CONTROL BALANCEO:} Es un bucle que activa o desactiva en el \textbf{NIVEL 2} el control del balanceo, según el ángulo medido. Ver figura \ref{fig:nivel_1_control_balanceo}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_24_nivel_1_control_balanceo.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ CONTROL BALANCEO}.}
-		\label{fig:nivel_1_control_balanceo}
-	\end{figure}
-	\item \textbf{NIVEL 1 >\ FRENADO SEGURIDAD:} Es un proceso en donde se hace un frenado preventivo cuando detectamos que la posición tanto del carro como del izaje están llegando a alguno de sus límites operativos. Empieza a frenar por seguridad para no chocar. Adicional a esto si se llegara a chocar por alguna razon o llegaramos a los límites responde el \textbf{NIVEL 0}. Ver figura \ref{fig:nivel_1_frenado_seguridad}.
-	\begin{figure}[!h]
-		\centering
-		\includegraphics[width=1\textwidth]{images/imagen_25_nivel_1_frenado_seguridad.png}
-		\caption{Diagrama de StateFlow del controlador \textbf{NIVEL 1 >\ FRENADO SEGURIDAD}.}
-		\label{fig:nivel_1_frenado_seguridad}
-	\end{figure}
-\end{itemize}
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_17_nivel_1_carga.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Marcha /\ Carga}.}
+	\label{fig:nivel_1_carga}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_18_nivel_1_modo.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Marcha /\ Operación /\ Modo}.}
+	\label{fig:nivel_1_modo}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_19_nivel_1_trayectoria.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Marcha /\ Operacion /\ Trayectoria}.}
+	\label{fig:nivel_1_trayectoria}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/imagen_20_nivel_1_cable_flojo.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Cable Flojo}.}
+	\label{fig:nivel_1_cable_flojo}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.55\textwidth]{images/imagen_21_nivel_1_longitud_lh.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Longitud Lh}.}
+	\label{fig:nivel_1_longitud_lh}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/imagen_22_nivel_1_pos_container.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Pos Container}.}
+	\label{fig:nivel_1_pos_container}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_23_nivel_1_freno.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Freno}.}
+	\label{fig:nivel_1_freno}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_24_nivel_1_control_balanceo.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Control Balanceo}.}
+	\label{fig:nivel_1_control_balanceo}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_25_nivel_1_frenado_seguridad.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 1 /\ Frenado Seguridad}.}
+	\label{fig:nivel_1_frenado_seguridad}
+\end{figure}
 
 \newpage
-~\newpage
-~\newpage
 
-En conclusión, el controlador de \textbf{NIVEL 1} es una parte fundamental del sistema de control ya que es el coordinador de toda la operación de la maquina, es el encargado de supervisar y coordinar la operación suave y eficiente de los subsistemas en función del estado y posición de la carga. Su estructura jerárquica y concurrente, le permite manejar diferentes tareas de manera simultánea y coordinada.
+En conclusión, el controlador de \textbf{Nivel 1} es una parte fundamental del sistema de control ya que es el coordinador de toda la operación de la maquina, es el encargado de supervisar y coordinar la operación suave y eficiente de los subsistemas en función del estado y posición de la carga. Su estructura jerárquica y concurrente, le permite manejar diferentes tareas de manera simultánea y coordinada.
 
 \subsection{Nivel 0 - Control de seguridad}
-El autómata de \textbf{NIVEL 0} está diseñado para garantizar la detención inmediata del sistema en caso de emergencia y poder llevar al mismo a un estado seguro. Este autómata se divide en dos estados concurrentes, los cuales se encargan de verificar las condiciones de seguridad y detener el sistema en caso de ser necesario. En la figura (24) se puede observar el autómata diseñado.
 
-Es importante destacar que el controlador de \textbf{NIVEL 0} debe estar diseñado de manera adecuada y cumplir con los estándares de seguridad establecidos, para garantizar una operación segura y eficiente del sistema.
+El autómata de \textbf{Nivel 0} está diseñado para garantizar la detención inmediata del sistema en caso de emergencia y poder llevar al mismo a un estado seguro. Este autómata se divide en dos estados concurrentes, los cuales se encargan de verificar las condiciones de seguridad y detener el sistema en caso de ser necesario. En la figura \ref{fig:nivel_0} se puede observar el autómata diseñado.
+
+Es importante destacar que el controlador de \textbf{Nivel 0} debe estar diseñado de manera adecuada y cumplir con los estándares de seguridad establecidos, para garantizar una operación segura y eficiente del sistema.
+
+Los dos estados concurrentes principales son:
+\begin{itemize}
+	\item \textbf{Emergencia:} Este ciclo es el que busca problemas o posibles estados de falla en el sistema y si los encuentra lanza alertas en base a las señales que recibe de distintos sensores y/o botones que tiene el operario.
+	\item \textbf{Watchdog:} Es el ciclo que se encarga de detectar errores en la ejecución del controlador y actualizar las variables para indicar los estados necesarios.
+\end{itemize}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_26_nivel_0.png}
+	\caption{Diagrama de StateFlow del controlador \textbf{Nivel 0}.}
+	\label{fig:nivel_0}
+\end{figure}
+
+El automatismo de \textbf{Nivel 0}, tiene como objetivo monitorear la posición y velocidad de los subsistemas de carro y de izaje, con el fin de evitar cualquier irregularidad que pueda ocurrir durante su operación. Se han considerado tres casos posibles en los que se activaría una emergencia. Los mismos son los siguientes:
+
+\begin{itemize}
+	\item En el primer caso, si la \textbf{velocidad} del sistema de izaje o del carro supera sus valores \textbf{máximos permitidos}, se activan unas señales de alerta que automáticamente envían una consigna a los frenos de seguridad para que se cierren (frenen al sistema). Y se desactiva el controlador de \textbf{Nivel 2}.
+
+	\item En el segundo caso, si el carro o el sistema de izaje alcanzan sus \textbf{límites físicos}, los fines de carrera se activan y, junto con ellos, el sistema de freno de emergencia. En este caso se procede igual que en el caso anterior deteniendo el sistema completamente para evitar cualquier daño o riesgo de seguridad.
+	
+	\item En el tercer caso, si el \textbf{operario} al mando necesita detener el sistema por cualquier razón que considere, puede activar el \textbf{pulsador de emergencia}, lo que también activará el sistema de frenado de emergencia y detendrá el sistema por completo.
+\end{itemize}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_27_emergencia.png}
+	\caption{Diagrama de StateFlow de la rutina de \textbf{Emergencia} del \textbf{Nivel 0}.}
+	\label{fig:nivel_0_emergencia}
+\end{figure}
+
+En relación a los casos anteriormente mencionados, en todos se generan dos tipos de alertas al detectar una irregularidad en el sistema: una alerta general y una alerta específica que varía en función de la causa de la irregularidad. Estas variables se pueden observar en el automatismo con los siguientes nombres:
+
+\begin{itemize}
+	\item \texttt{alert\_}: Es la señal general de alerta. La misma se activa siempre que haya un estado de emergencia.
+	\item \texttt{alert\_i}: Se activa si la causa de la emergencia es en el carro.
+	\item \texttt{alert\_c}: Se activa si la causa de la emergencia es en el izaje.
+	\item \texttt{alert\_p}: Se activa si la emergencia fue accionada por el pulsador del operario.
+	\item \texttt{alert\_wd}: Se activa cuando la alerta es disparada por el Watchdog.
+\end{itemize}
+
+Adicionalmente, el mecanismo de vigilancia (o Watchdog) es responsable de reiniciar un contador cada vez que detecta cambios en el pulso proveniente de un reloj externo. En caso de que la ejecución del programa experimente alguna dificultad, el contador no se reiniciará, y si llega a alcanzar un valor preestablecido, se detendrá el sistema. Disparando la alarma correspondiente. Esto se puede ver en el diagrama de la figura \ref{fig:nivel_0_watchdog}.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/imagen_28_watchdog.png}
+	\caption{Diagrama de StateFlow de la rutina de \textbf{Watchdog} del \textbf{Nivel 0}.}
+	\label{fig:nivel_0_watchdog}
+\end{figure}
+
+\newpage
+
+Además como mencionamos anteriormente una de las posibilidades para disparar una alerta es que el operario active la alarma con una señal de emergencia. Esto se hace utilizando los siguientes pulsadores:
+\begin{itemize}
+	\item El operario active la alarma con una señal de emergencia. Usando el \textbf{pulsador de emergencia}.
+	\item Luego de esto deberá presionar un \textbf{pulsador de reset} si quiere que el sistema arranque desde cero luego de haberse disparado la alarma. Como se ve en la figura \ref{fig:nivel_0_emergencia}
+\end{itemize}
+
+  
+
 
 \section{Simulación}
 asd
 
 \section{Implementación en CODESYS}
-asd
+
+Una vez llevada a cabo la implementación de la planta y los niveles de control 1, 2 y 3 mencionados en Simulink, se procedió a migrar los autómatas a Codesys, utilizando los lenguajes de programación gráficos SFC ("Sequential Function Chart") y ST ("Structured Text") de acuerdo con la norma IEC 61131-3. Es importante destacar que la implementación en Codesys se basó en el sistema implementado en Stateflow, ambos son equivalentes y siguen la misma lógica. Sin embargo, debido a que Simulink es más flexible en el diseño de autómatas, se realizaron adaptaciones para algunos estados con el objetivo de obtener un resultado similar en SFC.
+
+\subsection{Codesys Nivel 1: Control supervisor global}
+
+En el nivel 1 del control supervisor global, se operan ocho etapas en paralelo: \textbf{Marcha, Cable Flojo, Longitud Lh, Pos Container, Freno, Control Balanceo, Frenado Seguridad}, lo que es análogo a los 8 estados mencionados en la \ref{fig:nivel_1}. La etapa de Marcha selecciona alternativamente el modo de operación Manual (Hybrid Manual) o Automático (Automatic).
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_29_codesys_nivel_1.png}
+	\caption{Diagrama de Codesys del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1}
+\end{figure}
+
+El modo Manual se utiliza para los inicios de la trayectoria y para maniobras de aproximación, mientras que el Modo Automático se encarga de las maniobras principales de traslación e izaje. Las trayectorias pueden clasificarse en ciclo simple o ciclo doble, dependiendo de si se desea cargar solamente o complementar este proceso con uno de descarga del barco. Las otras etapas son funciones auxiliares al funcionamiento de ese modo principal. Se ejecuta todo en paralelo y se encargan de ver cuándo activar el control de balanceo, cuando activar los frenos, la medición de la longitud del péndulo, detección del cable flojo, etc.
+
+Para ver los detalles de la implementación de cada etapa, ver las figuras \ref{fig:codesys_nivel_1_marcha} a \ref{fig:codesys_nivel_1_frenado_seguridad}.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/imagen_30_codesys_nivel_1_marcha.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.55\textwidth]{images/imagen_31_codesys_nivel_1_marcha_carga.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Carga} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_carga}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.35\textwidth]{images/imagen_32_codesys_nivel_1_marcha_operacion.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_operacion}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/imagen_33_codesys_nivel_1_marcha_operacion_modo.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Modo} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_operacion_modo}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/imagen_34_codesys_nivel_1_marcha_operacion_trayectoria.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Trayectoria} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_operacion_trayectoria}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.4\textwidth]{images/imagen_35_codesys_nivel_1_marcha_operacion_trayectoria_automatico.png}
+	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Operación /\ Trayectoria /\ Automático} del \textbf{Nivel 1}.}
+	\label{fig:codesys_nivel_1_marcha_operacion_trayectoria_automatico}
+\end{figure}
 
 \section{Pruebas finales. Servidor OPC UA.}
 \section{Resultados}
 \section{Conclusiones}
 \section{Referencias}
 
+[1] Guía del Proyecto Global Integrador 2022 Rev 0, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
+
+[2] Apuntes de cátedra, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
 
 
 
@@ -965,10 +1105,6 @@ FIN DOCUMENTO
 
 
 \section{Referencias}
-
-[1] Guía del Proyecto Global Integrador 2022 Rev 0, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
-
-[2] Apuntes de cátedra, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
 
 [3] Analysis of Electric Machinery and Drive Systems, 3° Ed. Krause, P. et al.
 
