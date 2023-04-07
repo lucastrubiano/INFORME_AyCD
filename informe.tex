@@ -662,7 +662,7 @@ Durante la operación de traslación de la carga se tienen desplazamientos no de
 
 \begin{itemize}
 	\item Ángulo máximo aceleración/desaceleración $=\pm 20°$
-	\item Ángulo máximo trayectoria a velocidad ``constante" $=\pm 5°$
+	\item Ángulo máximo trayectoria a velocidad ``constante'' $=\pm 5°$
 	\item Ángulo residual movimiento completado y carro detenido $=\pm 1°$
 \end{itemize}
 
@@ -787,7 +787,7 @@ Y además de esta ecuación podemos obtener la frecuencia natural del sistema da
 	\omega_{n}=\sqrt{\frac{M_{eqt}\cdot g}{(M_{eqt}+m_l)\cdot l}}
 \end{equation}
 
-Si vemos la expresión de un controlador PD en el dominio de la variable ``s" tenemos que:
+Si vemos la expresión de un controlador PD en el dominio de la variable ``s'' tenemos que:
 
 \begin{equation}
 	\label{eq:controlador_PD}
@@ -1001,15 +1001,215 @@ Además como mencionamos anteriormente una de las posibilidades para disparar un
 	\item Luego de esto deberá presionar un \textbf{pulsador de reset} si quiere que el sistema arranque desde cero luego de haberse disparado la alarma. Como se ve en la figura \ref{fig:nivel_0_emergencia}
 \end{itemize}
 
-  
-
-
 \section{Simulación}
-asd
+En este apartado se presentarán los resultados de las simulaciones realizadas en el proyecto, en las cuales se puso a prueba el trabajo conjunto de los tres niveles de control para lograr las trayectorias deseadas. A partir de las simulaciones, se identificó que las trayectorias pueden ser optimizadas para que el contenedor se acerque más a las columnas de contenedores, con el objetivo de reducir tanto el tiempo como el consumo de energía en el proceso. En las siguientes secciones se detallarán los resultados obtenidos y las conclusiones que se pueden extraer de ellos.
+
+\subsection{Ciclo simple a máxima carga}
+
+En la figura \ref{fig:ciclo_simple_maxima_carga_trayectoria} se presenta el resultado obtenido tras la realización de una trayectoria de ciclo simple, con una carga máxima de $65.000\ Kg$, considerando el contenedor más el spreader. En esta simulación, el movimiento se inicia desde el lado del muelle, trasladando el contenedor hacia la última columna del barco para luego volver al punto de partida. Cabe destacar que el sistema logró llevar a cabo esta tarea de forma satisfactoria, cumpliendo con los objetivos planteados en cuanto a la trayectoria y la carga soportada. Los resultados obtenidos en esta simulación permiten validar la capacidad del sistema para enfrentar tareas de carga y descarga en situaciones reales de trabajo en puerto.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/ciclo_simple_maxima_carga/trayectoria_completa_xl.png}
+	\caption{Trayectoria de ciclo simple con carga máxima.}
+	\label{fig:ciclo_simple_maxima_carga_trayectoria}
+\end{figure}
+
+En relación a la simulación de la trayectoria con carga máxima, se determinó que la velocidad de izaje máxima posible es de $1.5\ m/s$, tal como se observa en la figura \ref{fig:ciclo_simple_maxima_carga_velocidad_izaje}. Por otro lado, la velocidad máxima de traslado horizontal permitida en esta situación es de $4\ m/s$, como se muestra en la figura \ref{fig:ciclo_simple_maxima_carga_velocidad_carro}. Esta restricción en las velocidades de movimiento tiene como finalidad mantener la potencia de funcionamiento constante durante el movimiento vertical, garantizando así la estabilidad y seguridad del sistema en todo momento. De esta manera, se asegura que el sistema pueda trabajar de manera eficiente y segura en situaciones de carga máxima.
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/ciclo_simple_maxima_carga/velocidad_izaje_fix.png}
+	\caption{Velocidad de izaje. Ciclo simple con carga máxima.}
+	\label{fig:ciclo_simple_maxima_carga_velocidad_izaje}
+\end{figure}
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/ciclo_simple_maxima_carga/velocidad_carro.png}
+	\caption{Velocidad del carro. Ciclo simple con carga máxima.}
+	\label{fig:ciclo_simple_maxima_carga_velocidad_carro}
+\end{figure}
+
+En el primer tramo de la figura \ref{fig:ciclo_simple_maxima_carga_velocidad_izaje}, se puede apreciar una velocidad reducida de $0.15\ m/s$ para permitir una elevación suave del contenedor desde el suelo, hasta que la masa sea estimada. A partir de los 10 segundos, la velocidad aumenta a $1.5\ m/s$, lo cual depende del valor de la carga que se está trasladando. Durante el tramo de vuelta al barco (desde los 60 segundos en adelante), cuando el ``spreader'' regresa sin carga, la velocidad se duplica para mantener la potencia constante nuevamente.
+
+En la figura \ref{fig:ciclo_simple_maxima_carga_velocidad_carro}, se puede apreciar que el carro sigue la consigna de velocidad en los tramos donde no hay cambios de consigna. Sin embargo, en los puntos de transición, hay un retraso en el seguimiento de la consigna por parte del sistema debido al efecto del control de balanceo.
+
+Por otro lado, en la figura \ref{fig:ciclo_simple_maxima_carga_angulo_balanceo}, se muestra el ángulo de balanceo de la carga. El sistema de control empleado presenta un rendimiento aceptable, buscando reducir el ángulo lo más rápido posible durante alguna desviación del 0. Es importante destacar que se cumplen los requerimientos planteados, ya que el ángulo no supera los $20°$ durante los cambios de posición y se restablece rápidamente a $0°$ después de algún cambio de consigna.
+
+En la figura \ref{fig:ciclo_simple_maxima_carga_fza_cable} se muestra la variación de la fuerza de tensión del cable a lo largo del trayecto. Es importante mencionar que se observa un retraso en la estabilización de la fuerza, lo que requiere la utilización de la integral de su valor para estimar la masa tempranamente. De esta forma, se puede obtener una estimación precisa y rápida de la masa en movimiento. Cabe destacar que este comportamiento ha sido contemplado en el diseño del sistema de control para garantizar la precisión y eficacia del mismo en todo momento.
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/ciclo_simple_maxima_carga/angulo_de_balanceo.png}
+	\caption{Ángulo de balanceo de carga. Ciclo simple con carga máxima.}
+	\label{fig:ciclo_simple_maxima_carga_angulo_balanceo}
+\end{figure}
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/ciclo_simple_maxima_carga/FuerzadeIzaje.png}
+	\caption{Fuerza de tensión del cable. Ciclo simple con carga máxima.}
+	\label{fig:ciclo_simple_maxima_carga_fza_cable}
+\end{figure}
+
+\subsection{Ciclo doble a media carga}
+
+En la figura \ref{fig:ciclo_doble_media_carga_trayectoria} se puede observar que la trayectoria de ciclo doble se realiza de manera satisfactoria. El primer tramo, desde el muelle hasta que deja el primer contenedor, se realiza de manera automática, luego en el segundo tramo, el ``spreader'' se mueve de forma automática pero sin carga para buscar el próximo contenedor y ahí se activan los ``twistlocks'' para sujetar este contenedor y llevarlo al muelle también de forma automática.
+
+Es importante destacar que la transición entre los tramos se realiza de manera suave y sin problemas, lo cual indica que el sistema de control utilizado es adecuado para este tipo de operaciones. Además, se puede apreciar que la velocidad de izaje máxima en el tramo de ida es mayor que en la simulación anterior (figura \ref{fig:ciclo_simple_maxima_carga_velocidad_izaje}), lo que demuestra la capacidad del sistema para ajustar la velocidad en función de la carga transportada para mantener la curda de potencia constante.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/ciclo_doble_carga_media/trayectoria_completa_xl.png}
+	\caption{Trayectoria de ciclo doble con carga media.}
+	\label{fig:ciclo_doble_media_carga_trayectoria}
+\end{figure}
+
+Así como mencionamos antes, a continuación se muestran las velocidades del carro e izaje en las figuras \ref{fig:ciclo_doble_media_carga_velocidad_izaje} y \ref{fig:ciclo_doble_media_carga_velocidad_carro}.
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/ciclo_doble_carga_media/velocidad_izaje.png}
+	\caption{Velocidad de izaje. Ciclo doble con carga media.}
+	\label{fig:ciclo_doble_media_carga_velocidad_izaje}
+\end{figure}
+
+\begin{figure}%[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{images/ciclo_doble_carga_media/velocidad_carro.png}
+	\caption{Velocidad del carro. Ciclo doble con carga media.}
+	\label{fig:ciclo_doble_media_carga_velocidad_carro}
+\end{figure}
+
+\newpage
+
+\subsection{Sistema de emergencia}
+
+En cuanto a la seguridad y protección del sistema, se llevaron a cabo pruebas de emergencia para evaluar su comportamiento en caso de situaciones críticas. De la figura \ref{fig:pulsador_emergencia_velocidad_izaje} a la \ref{fig:pulsador_emergencia_fuerza_cable_izaje} se muestra el resultado del sistema ante el accionamiento del \textbf{pulsador de emergencia}. Es posible observar cómo el sistema se detiene inmediatamente después de que se dispara la alerta (antes del segundo 5 apróx.), las consignas de velocidad pasan a 0 inmediatamente y se activan los frenos mecánicos para lograr un frenado óptimo y seguro.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_emergencia/velocidad_izaje.png}
+	\caption{Velocidad del izaje. Alerta accionada por el pulsador de emergencia.}
+	\label{fig:pulsador_emergencia_velocidad_izaje}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_emergencia/velocidad_carro.png}
+	\caption{Velocidad del carro. Alerta accionada por el pulsador de emergencia.}
+	\label{fig:pulsador_emergencia_velocidad_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_emergencia/torque_motor_carro.png}
+	\caption{Torque de frenado del carro. Alerta accionada por el pulsador de emergencia.}
+	\label{fig:pulsador_emergencia_torque_motor_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_emergencia/fuerza_cable_izaje.png}
+	\caption{Fuerza del cable del izaje. Alerta accionada por el pulsador de emergencia.}
+	\label{fig:pulsador_emergencia_fuerza_cable_izaje}
+\end{figure}
+
+\newpage
+
+En el segundo caso presentado figuras \ref{fig:final_carrera_velocidad_izaje} a \ref{fig:final_carrera_fuerza_cable_izaje} se muestra la respuesta del control de nivel 0 ante la \textbf{activación} de uno de los \textbf{fines de carrera} para el movimiento horizontal. En este caso, una vez activado el fin de carrera a los 5 segundos de la simulación, el sistema muestra una respuesta casi instantanea deteniendo el movimiento en apenas fracciones de segundos. Esta detención se realiza de manera segura y sin generar situaciones de riesgo para la carga o para los operarios. Este comportamiento demuestra que el control de nivel 0 funciona adecuadamente ante situaciones de emergencia y que es capaz de detener el sistema de forma controlada y segura.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_fin_de_carrera/velocidad_izaje.png}
+	\caption{Velocidad del izaje. Alerta accionada por el final de carrera.}
+	\label{fig:final_carrera_velocidad_izaje}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_fin_de_carrera/velocidad_carro.png}
+	\caption{Velocidad del carro. Alerta accionada por el final de carrera.}
+	\label{fig:final_carrera_velocidad_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_fin_de_carrera/torque_carro.png}
+	\caption{Torque de frenado del carro. Alerta accionada por el final de carrera.}
+	\label{fig:final_carrera_torque_motor_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Freno_fin_de_carrera/fuerza_izaje.png}
+	\caption{Fuerza del cable del izaje. Alerta accionada por el final de carrera.}
+	\label{fig:final_carrera_fuerza_cable_izaje}
+\end{figure}
+
+\newpage
+
+En el tercer caso, el sistema también cuenta con medidas de protección ante \textbf{velocidades} de izaje o traslación que \textbf{superen las máximas permitidas}. Esto es para prevenir situaciones como la de desconexión de alguna etapa de transmisión y así poder evitar que la carga se embale. En las figuras \ref{fig:sobrevelocidad_velocidad_izaje} a \ref{fig:sobrevelocidad_fuerza_cable_izaje} se puede observar cómo el sistema se detiene automáticamente al percibir que la velocidad del izaje ha superado la máxima permitida que es de $3\ m/s$. Esto demuestra la importancia de contar con medidas de seguridad y protección en el diseño y desarrollo de sistemas automatizados.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_sobrevelocidad/velocidad_izaje.png}
+	\caption{Velocidad del izaje. Alerta accionada por sobrevelocidad.}
+	\label{fig:sobrevelocidad_velocidad_izaje}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_sobrevelocidad/velocidad_carro.png}
+	\caption{Velocidad del carro. Alerta accionada por sobrevelocidad.}
+	\label{fig:sobrevelocidad_velocidad_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_sobrevelocidad/torque_motor.png}
+	\caption{Torque de frenado del carro. Alerta accionada por sobrevelocidad.}
+	\label{fig:sobrevelocidad_torque_motor_carro}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/Freno_sobrevelocidad/fuerza_cable.png}
+	\caption{Fuerza del cable del izaje. Alerta accionada por sobrevelocidad.}
+	\label{fig:sobrevelocidad_fuerza_cable_izaje}
+\end{figure}
+
+\newpage
+
+Como último caso, veremos como se comporta el sistema ante una situación de \textbf{sobrepeso en la carga}. Lo que supone un riesgo tanto para el sistema como para los operarios ya que si la carga excede lo permitido se podrían sufrir daños estructurales, en los sistemas de transmisión o incluso cortarse los cables de izaje provocando una caída de la carga. Para proteger al sistema ante estas situaciones, hay un algoritmo de control que durante el pesaje de la carga, si detecta que es mayor a la permitida, se activará una alarma automáticamente. El sistema además sólo le dejará al operario bajar la carga. No se le permite subir la misma ni desplazar el carro. Esto se puede ver en las figuras \ref{fig:sobrepeso_pesaje} a \ref{fig:sobrepeso_velocidad_izaje}.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/sobrepeso/pesaje.png}
+	\caption{Pesaje. Alerta accionada por sobrepeso.}
+	\label{fig:sobrepeso_pesaje}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/sobrepeso/fuerza_cable.png}
+	\caption{Fuerza del cable de izaje. Alerta accionada por sobrepeso.}
+	\label{fig:sobrepeso_fuerza_cable}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.75\textwidth]{images/sobrepeso/velocidad_izaje.png}
+	\caption{Velocidad del izaje. Alerta accionada por sobrepeso.}
+	\label{fig:sobrepeso_velocidad_izaje}
+\end{figure}
+
+\newpage
 
 \section{Implementación en CODESYS}
 
-Una vez llevada a cabo la implementación de la planta y los niveles de control 1, 2 y 3 mencionados en Simulink, se procedió a migrar los autómatas a Codesys, utilizando los lenguajes de programación gráficos SFC ("Sequential Function Chart") y ST ("Structured Text") de acuerdo con la norma IEC 61131-3. Es importante destacar que la implementación en Codesys se basó en el sistema implementado en Stateflow, ambos son equivalentes y siguen la misma lógica. Sin embargo, debido a que Simulink es más flexible en el diseño de autómatas, se realizaron adaptaciones para algunos estados con el objetivo de obtener un resultado similar en SFC.
+Una vez llevada a cabo la implementación de la planta y los niveles de control 1, 2 y 3 mencionados en Simulink, se procedió a migrar los autómatas a Codesys, utilizando los lenguajes de programación gráficos SFC (``Sequential Function Chart'') y ST (``Structured Text'') de acuerdo con la norma IEC 61131-3. Es importante destacar que la implementación en Codesys se basó en el sistema implementado en Stateflow, ambos son equivalentes y siguen la misma lógica. Sin embargo, debido a que Simulink es más flexible en el diseño de autómatas, se realizaron adaptaciones para algunos estados con el objetivo de obtener un resultado similar en SFC.
 
 \subsection{Codesys Nivel 1: Control supervisor global}
 
@@ -1017,7 +1217,7 @@ En el nivel 1 del control supervisor global, se operan ocho etapas en paralelo: 
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=1\textwidth]{images/codesys_nivel_1.png}
+	\includegraphics[width=0.8\textwidth]{images/codesys_nivel_1.png}
 	\caption{Diagrama de Codesys del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1}
 \end{figure}
@@ -1028,14 +1228,14 @@ Para ver los detalles de la implementación de cada etapa, ver las figuras \ref{
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_marcha.png}
+	\includegraphics[width=0.45\textwidth]{images/codesys_nivel_1_marcha.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha}
 \end{figure}
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.55\textwidth]{images/codesys_nivel_1_marcha_carga.png}
+	\includegraphics[width=0.5\textwidth]{images/codesys_nivel_1_marcha_carga.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Marcha /\ Carga} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_marcha_carga}
 \end{figure}
@@ -1105,7 +1305,7 @@ Para ver los detalles de la implementación de cada etapa, ver las figuras \ref{
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.6\textwidth]{images/codesys_nivel_1_frenado_seguridad.png}
+	\includegraphics[width=0.5\textwidth]{images/codesys_nivel_1_frenado_seguridad.png}
 	\caption{Diagrama de Codesys de la rutina de \textbf{Frenado Seguridad} del \textbf{Nivel 1}.}
 	\label{fig:codesys_nivel_1_frenado_seguridad}
 \end{figure}
@@ -1118,7 +1318,7 @@ En el Nivel 0 de Control de Seguridad o Protección, se operan dos etapas en par
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width=0.5\textwidth]{images/codesys_nivel_0.png}
+	\includegraphics[width=0.4\textwidth]{images/codesys_nivel_0.png}
 	\caption{Diagrama de Codesys del \textbf{Nivel 0}.}
 	\label{fig:codesys_nivel_0}
 \end{figure}
@@ -1130,9 +1330,9 @@ En el Nivel 0 de Control de Seguridad o Protección, se operan dos etapas en par
 	\label{fig:codesys_nivel_0_emergency}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}%[!h]
 	\centering
-	\includegraphics[width=0.8\textwidth]{images/codesys_nivel_0_emergency_fdc.png}
+	\includegraphics[width=0.7\textwidth]{images/codesys_nivel_0_emergency_fdc.png}
 	\caption{Diagrama de Codesys de la rutina \textbf{Emergency /\ Fdc} del \textbf{Nivel 0}.}
 	\label{fig:codesys_nivel_0_emergency_fdc}
 \end{figure}
@@ -1153,46 +1353,79 @@ En el Nivel 0 de Control de Seguridad o Protección, se operan dos etapas en par
 
 \subsection{Pruebas co-simulación. Servidor OPC UA.}
 
+Luego de tener migrados los controladores de Nivel 1 y 0 a Codesys. Se realizó una simulación conjunta de los sistemas en Codesys, junto con el Nivel 2 de control y el modelo de la Planta en Simulink. Para lograr esto, se utilizó un protocolo de comunicación llamado OPC UA, que permite la comunicación de datos entre dispositivos de diferentes fabricantes. El sistema de comunicación utiliza un servidor OPC UA al que se conectan uno o más clientes OPC UA estableciendo un socket con TCP/IP. Este servidor es capaz de almacenar todas las variables del sistema en una memoria a la que pueden acceder todos los clientes, y escribir o tomar lecturas según sus derechos de acceso.
 
-\section{Resultados}
+En este proyecto en particular, se simuló localmente un PLC en Codesys que contenía los niveles 0 y 1 de control (cliente), mientras que en Simulink se simuló la planta junto con el nivel 2 de control (cliente). Para lograr la comunicación entre estos diferentes módulos, se utilizó un servidor OPC UA proporcionado y ejecutado por Codesys. En la siguiente figura se puede ver un diagrama que muestra cómo funciona este sistema de simulación conjunta y cómo interactúan los diferentes módulos entre sí.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/co_simulacion_codesys.png}
+	\caption{Esquema de comunicaciones de Co-simulación}
+	\label{fig:comunicacion_servidor_opcua}
+\end{figure}
+
+En una parte del proceso, se utiliza el programa Codesys para ejecutar uno de los clientes OPC que contiene los niveles de control 0 y 1. Cuando se instala Codesys, se incluye automáticamente un servidor OPC UA que se puede acceder mediante el puerto 4840. Para permitir que el cliente escriba variables en el servidor, es necesario configurar los símbolos en Codesys y seleccionar las variables que se desean escribir. La figura 54 muestra el panel de configuración de símbolos que se utiliza para este propósito.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/variables_codesys.png}
+	\caption{Variables compartidas por el servidor OPC UA}
+	\label{fig:variables_codesys}
+\end{figure}
+
+En el proceso de co-simulación del sistema de control se utilizó la herramienta Matlab en conjunto con el protocolo de comunicación OPC UA para intercambiar información con el PLC virtual. Para lograr la conexión entre el servidor OPC UA y los bloques intérpretes de función de Matlab, se establecieron nodos de lectura-escritura que permiten el intercambio de variables con el PLC virtual. Se reemplazaron los modelos correspondientes de Simulink por dichos bloques intérpretes de función, permitiendo una conexión como cliente al servidor OPC UA.
+
+Sin embargo, durante el proceso de co-simulación, se presentó un problema relacionado con el tiempo de lectura-escritura desde y hacia el servidor OPC. En un caso ideal, se podría establecer un tiempo de intercambio de variables muy bajo, lo que permitiría un intercambio de variables casi en tiempo real. Pero, se pudo determinar que si el tiempo de escritura al servidor es menor a $100\ ms$, el servidor no logra soportarlo y se pierde la conexión.
+
+Otro inconveniente que se presentó en el desarrollo del sistema de control, fue que el control de nivel 2 requiere de un tiempo de muestreo elevado comparado con los demás, lo que impidió llevar a cabo su desarrollo en Codesys de nivel 2 discretizado. Debido a esta limitación, se decidió dejar el controlador en Simulink y no integrarlo al servidor OPC.
+
+Finalmente, en las siguientes figuras se pueden observar los bloques intérpretes de funciones del nivel 1 y nivel 0 respectivamente en Simulink.
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.53\textwidth]{images/matlab_codesys_nivel1.png}
+	\caption{Bloque intérprete de función Nivel 1}
+	\label{fig:bloque_interprete_funcion_nivel_1}
+\end{figure}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=0.53\textwidth]{images/codesys_matlab_nivel0.png}
+	\caption{Bloque intérprete de función Nivel 0}
+	\label{fig:bloque_interprete_funcion_nivel_0}
+\end{figure}
+
+\newpage
+
 \section{Conclusiones}
-\section{Referencias}
 
-[1] Guía del Proyecto Global Integrador 2022 Rev 0, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
+En conclusión, este proyecto de ingeniería fue exitoso en la aplicación práctica de los conocimientos adquiridos en las materias de ``Autómatas y Control Discreto'' así como de ``Automática y Máquinas Eléctricas'' para el modelado de sistemas físicos (electro-mecánicos). Se logró controlar de manera efectiva un sistema físico utilizando un autómata híbrido de control y supervisión, y un autómata de seguridad o protección.
 
-[2] Apuntes de cátedra, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián
+Se desarrolló exitosamente el modelo físico y matemático de la planta a controlar, utilizando herramientas de física y análisis matemático adquiridas a lo largo de la carrera, lo cual permitió la consolidación de conceptos fundamentales.
 
+En una segunda etapa, se diseñó un controlador en tiempo continuo compuesto por dos controladores PID y un PD para el seguimiento de las consignas de los accionamientos. Si bien el enfoque principal del proyecto fue el nivel de control 1 (control supervisor) y 0 (control de seguridad), el nivel 2 fue crucial para el cumplimiento de las trayectorias y consignas planificadas por el autómata, con un error mínimo. Para ello, se aplicó el método de sintonía serie para el cálculo de las constantes del controlador y la transformada de Laplace para obtener las funciones de transferencia del sistema a controlar.
 
+En cuánto al nivel 1 se planteó un autómata híbrido de control y supervisión, de estados discretos activado por eventos. Para el nivel 0 se planteó un autómata de seguridad o protección, también de estados discretos activado por eventos, que se activa en caso de una falla en el sistema. En ambos niveles se implementó concurrencia de subrutinas. Finalmente, se implementaron los autómatas de control supervisor global y de seguridad siguiendo el lenguaje SFC en el entorno de programación industrial (CODESYS) siguiendo la norma IEC 61131-3. Además, se realizó una co-simulación entre el entorno de simulación industrial y simulink, utilizando los conceptos de ``Model-in-the-loop'' y ``Software-in-the-loop'', lo que permitió una mayor familiarización con entornos de trabajo profesional.
 
+Como posibles mejoras, se sugiere optimizar la trayectoria para que esté más cerca de los contenedores, lo que permitiría ahorrar tiempo y energía. Además, en el caso de una parada de emergencia, se podría detener el sistema de manera más rápida al tener frenos mecánicos.
 
-
-
-
-
-
-\newpage
-FIN DOCUMENTO
-\newpage
-
-
-% ejemplo de espacio entre párrafos
-% \vspace{0.3cm}\\
-
-% ejemplo de letras minúsculas enumeradas
-% \renewcommand{\theenumi}{\alph{enumi}} %Letras minúsculas
-
-% ejemplo de imagen
-% \begin{figure}[h!]
-% 	\centering
-% 	\includegraphics[width=\textwidth]{2_1_2_ModeloElectricoEquivalente.png}
-% 	\caption{\label{fig:ElectricoEquivalente} Diagrama en bloques de la planta completa en \textbf{Simulink} (con transformación de \textbf{Park})}
-% \end{figure}
-
+En conclusión, la realización de este proyecto fue muy beneficiosa tanto desde el punto de vista de la cátedra ``Autómatas y Control Discreto'' como para las materias previas, permitiendo afianzar conceptos previamente adquiridos que son fundamentales para la preparación para la vida profesional.
 
 \section{Referencias}
 
-[3] Analysis of Electric Machinery and Drive Systems, 3° Ed. Krause, P. et al.
+[1] Guía del Proyecto Global Integrador 2022 Rev 0, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián.
 
-[4] Guía del Proyecto Global Integrador. Automática y Maquinas Eléctricas. Profesor Ing. Gabriel Julián
+[2] Apuntes de cátedra, Autómatas y Control Discreto, Profesor Ing. Gabriel Julián.
+
+[3] \href{https://help.codesys.com}{Sitio web de ayuda de Codesys - Automation Software for Engineering Control Systems.}
+
+[4] \href{https://www.codesys.com/products/codesys-runtime/opc-ua.html}{Sitio de Codesys para conexión con el servidor OPC-UA.}
+
+[5] \href{https://www.halvorsen.blog/documents/technology/opc/}{Tutorial de conexión entre Matlab y OPC.}
+
+[6] \href{https:/https://de.mathworks.com/help/matlab/help-and-support.
+html}{Sitio web de soporte de Matlab.}
+
+[7] Norma IEC 61131-3.
 
 \end{document}
