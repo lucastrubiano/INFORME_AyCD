@@ -316,7 +316,7 @@ En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje en S
 
 \newpage
 
-\subsection{Análisis de tipos de carga}
+\subsection{Análisis de tipos de carga y movimiento tipo péndulo}
 \label{section:carga}
 
 Previamente vimos que en la ecuación \ref{eq:sistema_izaje_final}, hay un término $F_{hw}(t)$ que representa la fuerza que experimenta el cable. El sistema de izaje está formado por 4 cables (1 por cada esquina del headblock) pero vamos a considerarlo como uno sólo con un modelo equivalente elástico-amortiguado dado por la siguiente ecuación \ref{eq:sistema_izaje_fuerza_cable}:
@@ -360,9 +360,9 @@ Algo más a tener en cuenta es que cuando la carga está apoyada hay una reacci�
 
 \subsubsection{Análisis con carga suspendida}
 
-Con lo visto previamente ya sabemos que, el cable equivalente no soporta compresión. Ya que en tal caso se doblaría. Por ende, si se denomina $l(t)$ a la longitud del cable fuera del tambor estirado y $l_{h}(t)$ a la longitud del cable desenrollado sin estar sometido a ninguna fuerza.
+Con lo visto previamente ya sabemos que, el cable equivalente no soporta compresión. Ya que en tal caso se doblaría. Por ende, si se denomina $l(t)$ a la longitud real del cable fuera del tambor (estirado) y $l_{h}(t)$ a la longitud del cable desenrollado sin estar sometido a ninguna fuerza.
 
-Además si consideramos pequeñas deformaciones, dentro del límite elástico. Es válida la Ley de Hooke para sistemas amortiguados. Es decir, que la fuerza que experimenta el cable es proporcional a la deformación del mismo según la ecuación \ref{eq:sistema_izaje_fuerza_cable}.
+Y considerando pequeñas deformaciones, dentro del límite elástico. Es válida la Ley de Hooke para sistemas amortiguados. Es decir, que la fuerza que experimenta el cable es proporcional a la deformación del mismo según la ecuación \ref{eq:sistema_izaje_fuerza_cable}.
 
 Entonces, si analizamos la siguiente imagen \ref{fig:sistema_pendulo} podemos ver que la longitud del cable $l(t)$ es mayor que la longitud del cable desenrollado $l_{h}(t)$ cuando la carga está suspendida. Por lo tanto, la fuerza que experimenta el cable es positiva y el sistema de izaje se estira. En el caso contrario, la fuerza del cable es nula.
 
@@ -375,7 +375,7 @@ Entonces, si analizamos la siguiente imagen \ref{fig:sistema_pendulo} podemos ve
 
 \newpage
 
-En base a este modelo podemos plantear la siguiente ecuación \ref{eq:sistema_pendulo_cinematica} que representa un cambio de coordenadas globales a locales de movimiento.
+En base a este modelo podemos plantear la siguiente ecuación \ref{eq:sistema_pendulo_cinematica} que representa el sistema de un péndulo y un cambio de coordenadas globales a locales de movimiento.
 
 \begin{equation}
 	\label{eq:sistema_pendulo_cinematica}
