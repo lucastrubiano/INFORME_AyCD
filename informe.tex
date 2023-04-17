@@ -588,7 +588,7 @@ Podemos observar que el error a medir es de velocidad, no de posición. Esto se 
 
 \subsubsection{Controlador del izaje de la carga}
 
-Si analizamos ahora el sistema de izaje de la carga y tomando el modelo dinámico dado por la ecuación \ref{eq:sistema_izaje_final}. Reescribiendo $M_{eqh}$ y $b_{eqh}$:
+Si analizamos ahora el sistema de izaje de la carga y tomamos el modelo dinámico dado por la ecuación \ref{eq:sistema_izaje_final}, sin considerar los torques de frenado. Reescribiendo $M_{eqh}$ y $b_{eqh}$ como:
 
 \begin{equation}
 	\label{eq:sistema_izaje_masa_equivalente}
@@ -600,7 +600,7 @@ Si analizamos ahora el sistema de izaje de la carga y tomando el modelo dinámic
 	b_{eqh} = \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}}
 \end{equation}
 
-Así despejando la ecuación \ref{eq:sistema_izaje_final} junto con las que acabamos de mencionar. Si la expresamos en función de su velocidad (para evitar usar un derivador) y se trata a la fuerza de la carga como una perturbación del sistema. Podemos aplicar transformada de Laplace y obtener las siguientes ecuaciones:
+Así despejando la ecuación \ref{eq:sistema_izaje_final} junto con las que acabamos de mencionar. Expresandolas en función de su velocidad (para evitar usar un derivador) y si tratamos a la fuerza de la carga como una perturbación del sistema. Podemos aplicar transformada de Laplace y obtener las siguientes ecuaciones:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace}
@@ -613,7 +613,7 @@ Reagrupando:
 	2\cdot \left ( M_{eqh}\cdot s+b_{eqh} \right )\cdot V_{lh}(s) = \frac{T_{hm}(s)\cdot i_{h}}{r_{hd}}+ F_{hw}(s)
 \end{equation}
 
-Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la ecuación \ref{eq:sistema_izaje_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque $T_{hm}(s)$ y la tensión a la que se somete el cable $F_{hw}(s)$. Donde esto se puede expresar según las siguientes ecuaciones las funciones de transferencia para cada entrada:
+Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la ecuación \ref{eq:sistema_izaje_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque $T_{hm}(s)$ y la tensión a la que se somete el cable $F_{hw}(s)$. Así podemos expresar las funciones de transferencia para cada entrada como:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace_G1h}
@@ -625,7 +625,7 @@ Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la 
 	G_{2h}(s)=\frac{V_{lh}(s)}{F_{hw}(s)}=\frac{2}{M_{eqh}\cdot s+b_{eqh}}
 \end{equation}
 
-Como la entrada de control es de torque, la ecuación de interés es $G_{1h}(s)$. Que tiene un polo que está ubicado en:
+La entrada de control es de torque, por lo tanto la ecuación de interés es $G_{1h}(s)$. Que tiene un polo que está ubicado en:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace_polos}
