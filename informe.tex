@@ -731,7 +731,7 @@ El siguiente paso es obtener las fuerzas que intervienen en el sistema, por esto
 	\frac{d}{dt}\left ( \frac{\partial L}{\partial \dot{q}_{i}} \right ) -\frac{\partial L}{\partial q_{i}}=F_{i}-b_{i}\cdot \dot{q}_{i}
 \end{equation}
 
-Si evaluamos esta ecuación respecto de las coordenadas generalizadas, $x_{t}(t)$ posición del carro, y $\theta(t)$ el ángulo de balanceo. Obtenemos:
+Evaluando esta ecuación respecto de las coordenadas generalizadas, $x_{t}(t)$ posición del carro, y $\theta(t)$ el ángulo de balanceo. Obtenemos:
 
 \begin{equation}
 	\label{eq:lagrangiano_coordenadas_generalizadas}
@@ -745,28 +745,28 @@ Si consideramos pequeños desplazamientos, ángulos menores a $22°$, podemos co
 	\left \{\begin{matrix}(m_t+m_l)\ddot{x_t}(t)+m_l\ l\ \ddot{\theta }(t)=F_t(t)-b_{eqt}\ \dot{x_t}(t)\\ \ddot{x_t}(t)+l\ \ddot{\theta }(t)+g\ \theta (t)=0\end{matrix}\right.
 \end{equation}
 
-Si tenemos en cuenta la ecuación del modelo dinámico del carro, ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, despejando la aceleración y despreciando la fuerza de la carga, obtenemos:
+Teniendo en cuenta la ecuación del modelo dinámico del carro, ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, despejando la aceleración y despreciando la fuerza de la carga, obtenemos:
 
 \begin{equation}
 	\label{eq:ddx_t}
 	\ddot{x_t}(t)=\frac{F_t(t)-b_{eqt}\ \dot{x_t}(t)}{M_{eqt}}
 \end{equation}
 
-Reemplazando la ecuación \ref{eq:ddx_t} en la segunda ecuación de \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y despejando $F_{t}(t)$ obtenemos:
+Reemplazando la ecuación \ref{eq:ddx_t} en la segunda ecuación \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y despejando $F_{t}(t)$ obtenemos:
 
 \begin{equation}
 	\label{eq:F_t}
 	F_{t}(t)=-M_{eqt}\ \left ( l\ \ddot{\theta}(t)+g\ \theta(t) \right )+b_{eqt}\ \dot{x_t}(t)
 \end{equation}
 
-Si despejamos $F_{t}(t)$ de la primera ecuación de \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y la igualamos con la ecuación \ref{eq:F_t}, operando se obtiene:
+Si despejamos $F_{t}(t)$ de la primera ecuación \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y la igualamos con la ecuación \ref{eq:F_t}, operando se obtiene:
 
 \begin{equation}
 	\label{eq:F_t_2}
 	(m_t+m_l)\ \ddot{x_t}(t)=-(M_{eqt}+m_l)\ l\ \ddot{\theta}(t)-M_{eqt}\ g\ \theta(t)
 \end{equation}
 
-Si expresamos dicha ecuación en función de la velocidad del carro y aplicamos transformada de Laplace, obtenemos:
+Expresando dicha ecuación en función de la velocidad del carro y aplicamos transformada de Laplace, obtenemos:
 
 \begin{equation}
 	\label{eq:laplace_F_t_2}
@@ -794,7 +794,7 @@ Si vemos la expresión de un controlador PD en el dominio de la variable ``s'' t
 	G_{PD}(s)=K_p+K_d\cdot s
 \end{equation}
 
-Recordemos que lo que buscamos con este controlador es regular el balanceo de la carga con lo cuál si acción de control impacta en el movimiento del carro. Este controlador PD va en serie con el controlador PID del carro y con la planta. Así la función de transferencia nos queda como:
+Recordemos que lo que buscamos con este controlador es regular el balanceo de la carga con lo cuál la acción de control impacta en el movimiento del carro. Este controlador PD va en serie con el controlador PID del carro y con la planta. Así la función de transferencia nos queda como:
 
 \begin{equation}
 	\label{eq:funcion_transferencia_controlador}
@@ -822,7 +822,7 @@ Quedando así el controlador en función de la masa de la carga y la longitud de
 	v_t^{*}=e_\theta(t)\cdot K_p+\dot{e_{\theta}}(t)\cdot K_d
 \end{equation}
 
-Donde $e_\theta(t)$ es el error entre la consigna y el ángulo real de la carga. A continuación vemos como nos queda el diagrama en Simulink de este controlador:
+Donde $e_\theta(t)$ es el error entre la consigna y el ángulo real de la carga. A continuación vemos como queda el diagrama en Simulink de este controlador:
 
 \begin{figure}[h!]
 	\centering
