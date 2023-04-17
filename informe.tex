@@ -97,14 +97,14 @@ Finalmente, se presentan los \textbf{resultados} obtenidos y las \textbf{conclus
 El sistema se compone de dos movimientos fundamentales, el \textbf{sistema de traslación horizontal (carro)}, y el \textbf{sistema movimiento vertical (izaje)}. Vamos a desarrollar las ecuaciones de ambos sistemas por separado y luego veremos cómo esos movimientos se combinan para dar como resultado las ecuaciones de movimiento del contenedor en el \textbf{plano x-y}.
 
 \subsection{Hipotesis}
-El sistema planteado es de una complejidad considerable, por lo cuál, para los fines académicos vamos a plantear una serie de simplificaciones o consideraciones sobre el modelo:
+El sistema real planteado es de una complejidad considerable, por lo cuál, para los fines académicos vamos a plantear una serie de simplificaciones o consideraciones sobre el modelo:
 \begin{itemize}
-	\item Consideraremos la estructura del pórtico como completamente rígida.
-	\item El carro que se desliza sobre la estructura, tiene un desplazamiento puramente horizontal y sin resbalamiento.
+	\item Consideraremos a la estructura del pórtico completamente rígida.
+	\item El carro que se desliza sobre la estructura, tiene un desplazamiento puramente horizontal y sin resbalamiento. Es tirado por cables a ambos lados del carro en un sistema cerrado que es movido por unos tambores ubicados en la casa de máquinas.
 	\item Los mecanismos de transmisión del carro se consideran rígidos.
-	\item Un único cable de acero equivalente de carro siempre tensado (tracción), con elasticidad longitudinal amortiguada.
-	\item Asumimos mecanismo equivalente (1 tambor con 1 freno de emergencia, 1 motor con 1 freno) con transmisión rígida.
-	\item Un cable de acero equivalente de izaje, con masa propia despreciable, elástico sólo a tracción (no soporta compresión).
+	\item Consideramos un único cable de acero equivalente de carro siempre tensado (a tracción), con elasticidad longitudinal amortiguada.
+	\item Asumimos mecanismo equivalente (1 tambor con 1 freno de emergencia, 1 motor con 1 freno).
+	\item El cable de acero equivalente de izaje, tiene masa propia despreciable, elástico sólo a tracción (no soporta compresión).
 	\item Vamos a suponer que no existen efectos externos sobre el carro ni la carga. Es decir, no hay efectos aerodinámicos al chocar con el viento.
 	\item El sistema está sometido a la acción de la aceleración de la gravedad, que se aplica verticalmente sobre la carga. Y también a la interacción de contacto o apoyo de la carga o spreader sobre el suelo.
 \end{itemize}
@@ -112,7 +112,7 @@ El sistema planteado es de una complejidad considerable, por lo cuál, para los 
 \subsection{Sistema de traslación del carro}
 \label{section:carro}
 
-Comencemos por el primer sistema de movimiento. Respecto del carro que se mueve en dirección horizontal, debemos tener en cuenta las siguientes especificaciones:
+Teniendo en cuenta el primer sistema de movimiento. El carro se mueve en dirección horizontal y debe cumplir con las siguientes especificaciones técnicas:
 \begin{itemize}
 	\item La posición $x_{t}$ varía desde $-30.0\ m$ (en el muelle) hasta $+50.0\ m$ (en el barco).
 	\item La velocidad máxima $v_{t}$ es de $4.0\ m/s$ (con o sin carga).
@@ -127,7 +127,7 @@ El carro se mueve sobre los rieles en la parte superior de la grúa en direcció
 	\caption{\label{fig:ref_grua} Sistema de referencia de los ejes x e y de la grúa.}
 \end{figure}
 
-Luego si analizamos la siguiente figura \ref{fig:sistema_carro} donde se esquematiza el sistema del carro, cable de carro y sistema de transmisión. Podemos ver que el carro se mueve sobre los rieles con un movimiento de rodadura pura (rotación sin deslizamiento), y que el sistema de transmisión del carro se compone de un motor, una caja reductora, un tambor y un freno.
+Luego si analizamos la siguiente figura \ref{fig:sistema_carro} donde se esquematiza el sistema del carro, cable de carro y sistema de transmisión. Podemos ver que el carro se mueve sobre los rieles con un movimiento de rodadura pura (rotación sin deslizamiento), y que el sistema de transmisión del carro se compone de un motor, una caja reductora, un tambor (que contiene el cable del carro) y un freno.
 
 \begin{figure}[h!]
 	\centering
