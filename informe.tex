@@ -484,23 +484,23 @@ Llegados a este punto, procedemos a unir los siguientes modelos físicos dando l
 
 \section{Sistemas de control}
 
-Tal como se explicó anteriormente, el sistema físico a controlar consta de 2 movimientos principales: el de traslación del carro (horizontal, eje $x$) y el de izaje de la carga (vertical, eje $y$). Hay que tener en cuenta que ambos movimientos están acoplados ya que el sistema de izaje se desplaza junto con el movimiento del carro. Y además la carga (spreader y contenedor) se balancea, suspendida del carro que la traslada mediante los cables de izaje. Para poder controlar de forma eficiente estos movimientos se consideran los siguientes niveles de control para un autómata híbrido de control:
+Tal como se explicó anteriormente, el sistema físico a controlar consta de 2 movimientos principales: el de traslación del carro (horizontal, eje $x$) y el de izaje de la carga (vertical, eje $y$). Hay que tener en cuenta que ambos movimientos están acoplados ya que el sistema de izaje se desplaza junto con el movimiento del carro. Y además la carga (spreader + contenedor) se balancea, suspendida del carro que la sube/baja mediante los cables de izaje. Para poder controlar de forma eficiente estos movimientos se consideran los siguientes niveles de control para un autómata híbrido de control:
 
 \begin{itemize}
-	\item \textbf{Nivel 0:} Este es el control de seguridad que consiste en un autómata reducido y confiable, que es el encargado de actuar o accionar ante falla crítica de niveles inferiores y/o riesgo de seguridad.
-	\item \textbf{Nivel 1:} Este es el control supervisor global y es un control de estados discretos activados por eventos, con estructura jerárquica y/o concurrencia, para una operación suave y eficiente con coordinación y optimización de trayectorias, es un control de operación global del sistema que además cuenta con diagnóstico (alarmas y fallas).
+	\item \textbf{Nivel 0:} Este es el control de seguridad que consiste en un autómata reducido y confiable, que es el encargado de actuar o accionar ante una falla crítica de niveles inferiores y/o riesgo del sistema físico o de seguridad (colisiones).
+	\item \textbf{Nivel 1:} Este es el control supervisor global y es un control de estados discretos activados por eventos, con estructura jerárquica y concurrencia, para una operación suave y eficiente con coordinación y optimización de trayectorias, es un control de operación global del sistema.
 	\item \textbf{Nivel 2:} Acá se encuentran los controladores de movimiento de estados continuos en tiempo discreto. Son los que reciben las consignas de movimiento individuales del control supervisor para el control de cada uno de los movimientos principales.
 \end{itemize}
 
 \subsection{Nivel 2 - Controladores de movimiento}
-Los controladores de este nivel son del tipo PID para los movimientos de traslación del carro y de izaje de la carga, y además también tienen en cuenta el modelo de balanceo de la carga.
+Los controladores de este nivel son del tipo PID para los movimientos de traslación del carro y de izaje de la carga, y además se tiene en cuenta un controlador PD para el modelo de balanceo de la carga.
 
-Para cada uno de estos plantearemos transformadas de Laplace para luego obtener las funciones de transferencia del sistema. Una vez conocidas dichas funciones de transferencia, se procederá a obtener los polos y ceros del sistema, para así poder obtener los parámetros óptimos de los controladores PID.
+Para cada uno de estos plantearemos sus transformadas de Laplace para luego obtener las funciones de transferencia de cada sistema. Una vez conocidas dichas funciones de transferencia, se procederá a obtener los polos y ceros del sistema, para así poder obtener los parámetros óptimos de los controladores PID por método de sintonía serie.
 
 \newpage
 
 \subsubsection{Controlador de posición del carro}
-Recordando la ecuación \ref{eq:sistema_carro_final}, ecuación final que modela el movimiento del carro, si la expresamos en función de su velocidad. Teniendo en cuenta la simplificación $v_{td}(t)\simeq v_{t}(t)$ obtenemos la siguiente ecuación \ref{eq:sistema_carro_simplificado}:
+Recordando la ecuación \ref{eq:sistema_carro_final}, ecuación final que modela el movimiento del carro, si la expresamos en función de su velocidad. Sin considerar los torques de freno y teniendo en cuenta la simplificación $v_{td}(t)\simeq v_{t}(t)$ obtenemos la siguiente ecuación \ref{eq:sistema_carro_simplificado}:
 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado}
@@ -528,7 +528,7 @@ Así podemos reescribir la ecuación \ref{eq:sistema_carro_simplificado} como:
 	M_{eqt}\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}-b_{eqt}\cdot v_{t} + 2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
 \end{equation}
 
-Con esto ahora podemos decir que la ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, aplicando además tansformada de Laplace. Y aplicando el cambio de $F_{l}(s)=F_{hw}(s) \cdot sin \left ( \theta(s) \right )$ se puede escribir como:
+Con esto ahora podemos decir que la ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, aplicando tansformada de Laplace. Y aplicando el cambio de $F_{l}(s)=F_{hw}(s) \cdot sin \left ( \theta(s) \right )$ se puede escribir como:
 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado_laplace}
@@ -561,7 +561,7 @@ Como las entradas de control son de torque, las ecuaciones de interés son $G_{1
 	\omega_{G1t}=-\frac{b_{eqt}}{M_{eqt}}
 \end{equation}
 
-Siempre buscamos tener una respuesta del controlador óptima por lo cuál la misma debe ser más rápida que la velocidad de respuesta de la planta. Para esto aplicamos el método de sintonía serie y definimos que la frecuencia del controlador $\omega_{post}=10\cdot \omega_{G_{1t}}$ y para tener un sistema  subamortiguado se adopta un factor $n_{t}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. De esa forma obtenemos con el método las siguientes ganancias del controlador:
+Siempre buscamos tener una respuesta del controlador óptima por lo cuál la misma debe ser más rápida que la velocidad de respuesta de la planta. Para esto aplicamos el método de sintonía serie y definimos que la frecuencia del controlador $\omega_{post}=10\cdot \omega_{G_{1t}}$ y para tener un sistema subamortiguado se adopta un factor $n_{t}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. De esa forma obtenemos con el método las siguientes ganancias del controlador:
 
 \begin{itemize}
 	\item Proporcional $\rightarrow K_{pc} = M_{eqt}\cdot n_{t}\cdot {\omega_{post}}^{2} = 1.961 \cdot 10^6$
@@ -574,7 +574,7 @@ Así llegamos a la ecuación genérica del control PID de movimiento horizontal 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado_laplace_controlador}
 	T_{mc}^{*}(s)=G_{T}(s)\left [ K_{dc}+\frac{1}{s}\cdot K_{pc}+\frac{1}{s^{2}}\cdot K_{ic} \right ] e_{dxt}(s)
-\end{equation}'
+\end{equation}
 
 Podemos observar que el error a medir es de velocidad, no de posición. Esto se debe a que el controlador planteado utiliza 2 integradores para evitar el uso de derivadores, que amplifican el ruido. El diagrama de bloques nos queda:
 
