@@ -53,11 +53,11 @@
     {\Large \textbf{Resumen}}
 \end{center}
 
-Este informe presenta el proyecto de un control semi-automático coordinado de una grúa portuaria de muelle tipo pórtico, desarrollado con Matlab, Simulink y CODESYS. El objetivo del proyecto es diseñar un sistema de control multinivel (Nivel 0, 1 y 2) que permita la coordinación entre las distintas funciones de la grúa, mejorando la eficiencia y seguridad en la carga y descarga de contenedores en el puerto.
+Este informe presenta el proyecto de un control semi-automático coordinado de una grúa portuaria de muelle tipo pórtico, desarrollado con Matlab, Simulink, Stateflow y CODESYS. El objetivo del proyecto es diseñar un sistema de control multinivel (Nivel 0, 1 y 2) que permita la coordinación entre las distintas funciones de la grúa, mejorando la eficiencia y seguridad en la carga y descarga de contenedores en el puerto.
 \par
-Para esto consideraremos unas simplificaciones en el sistema físico; en primer lugar vamos a suponer un movimiento en 2 dimensiones x e y, tanto del contenedor como del carro; consideramos que luego este movimiento se replicaría en cada carril; en segundo lugar para moverse en el plano tendremos en cuenta 2 tipos de movimiento uno de avance/retroceso del carro y otro de izaje del cable, lo que un movimiento de tipo péndulo del contenedor. Dichas simplificaciones sirven para el planteo del modelo matemático y físico de la planta.
+Para esto consideraremos unas simplificaciones en el sistema físico; en primer lugar vamos a suponer un movimiento en 2 dimensiones en los ejes ``x'' e ``y'', tanto del contenedor como del carro; consideramos que luego este movimiento se replicaría en cada carril; en segundo lugar para moverse en el plano tendremos en cuenta 2 tipos de movimiento uno de avance/retroceso del carro y otro de izaje del cable y la carga, lo que supone un movimiento de tipo péndulo del contenedor. Dichas simplificaciones sirven para el planteo del modelo matemático y físico de la planta. Luego se verán más adelante otras simplificaciones realizadas como consideraciones de estructuras rígidas, etc.
 \par
-Las fases de desarrollo del proyecto se dividen en 2, “Model-in-the-loop” y “Software-in-the-loop”. La primera consta de usar Matlab, Simulink y Stateflow para construir un modelo del sistema y el sistema de control, y realizar pruebas y simulaciones para determinar el correcto funcionamiento de los mismos. Luego la segunda etapa consta de llevar la lógica del autómata a un entorno estandarizado como CODESYS (según norma IEC 61131-3) y realizar una prueba conjunta con comunicación por protocolo OPC UA para verificar el correcto funcionamiento del proyecto.
+Las fases de desarrollo del proyecto se dividen en 2, “Model-in-the-loop” y “Software-in-the-loop”. La primera consta de usar Matlab, Simulink y Stateflow para construir un modelo del sistema y el sistema de control, y realizar pruebas y simulaciones para determinar el correcto funcionamiento de los mismos. Luego la segunda etapa consta de llevar la lógica del autómata a un entorno estandarizado como CODESYS (según norma IEC 61131-3) y realizar una prueba conjunta con comunicación por protocolo OPC UA para verificar el correcto funcionamiento del automatismo y la planta.
 
 
 
@@ -66,29 +66,29 @@ Las fases de desarrollo del proyecto se dividen en 2, “Model-in-the-loop” y 
 \section{Introducción}
 
 
-Una de las formas más comunes de comercializar y mover productos y/o materias primas en grandes cantidades es a través de contenedores en barcos. Esto se ha difundido de tal forma en el mundo que los puertos son muy comunes y claves para las economías de los países. En estos puertos se mueven grandes cantidades de contenedores, en tiempos muy reducidos para aumentar la eficiencia, y teniendo en cuenta que son objetos pesados hay que manipularlos con una precisión y seguridad que no es fácil de lograr. Para esto se utilizan grúas que son semi-automáticas, es decir, tramos con operación manual y tramos con operación automática. A estas grúas se les dota de sistemas de control lo suficientemente robustos o a prueba de fallas.
+Una de las formas más comunes de comercializar y mover productos y/o materias primas en grandes cantidades es a través de contenedores en barcos. Esto se ha difundido de tal forma en el mundo que los puertos son claves para las economías de los países. En estos puertos se mueven grandes cantidades de contenedores, en tiempos muy reducidos por lo cuál la eficiencia y la productividad son aspectos esenciales del control, y teniendo en cuenta que son objetos de gran tamaño y peso, tenemos que tener en cuenta los riesgos que esto implica y debemos crear sistemas de control que puedan manipularlos con una alta precisión y seguridad. Para esto se utilizan grúas que son semi-automáticas, es decir, tramos con operación manual y tramos con operación automática. A estas grúas se les dota de sistemas de control lo suficientemente robustos y a prueba de fallas.
 \par
-Para resolver este problema lo primero es realizar el modelado físico que, por simplificación, consta de un carro en la parte superior que se mueve en dirección horizontal. Y del mismo cuelga  un cable que sostiene el contenedor, este cable se puede izar, de tal forma que, también simplificando el modelo, el sistema queda como el de un carrito con un péndulo de longitud variable. Del extremo del cable cuelga un “spreader” que sostiene el contenedor y esto conforma la carga del péndulo o del cable.
+Para resolver este problema lo primero es realizar el modelado físico que, por simplificación, consta de un carro en la parte superior que es tirado por un sistema de cables cerrados a ambos lados del mismo y hacen que se mueva en dirección horizontal. Del mismo cuelga un cable que sostiene el spreader+contenedor, este cable se puede izar, de tal forma que, también simplificando el modelo, el sistema queda como el de un carrito con un péndulo de longitud variable. Del extremo del cable cuelga un ``spreader'' que sostiene el contenedor y esto conforma la carga del péndulo o del cable.
 \par
 Luego de resolver el modelado físico-matemático del sistema procedemos a desarrollar un autómata que tiene funciones de control y seguridad y está formado por 3 niveles:
 \begin{itemize}
-    \item \textbf{Nivel 2:} Este controlador está compuesto por otros dos controladores de estados continuos en tiempo discretizado (controles de lazo cerrado), reciben las consignas del controlador superior (Nivel 1) separado por 2 consignas, una de izaje y otra de traslación. Y en base a eso hace un control genérico de 4 cuadrantes sobre los accionamientos electromecánicos. Los controles son PID de movimiento con modulador de torque para izaje y traslación, y control tipo PD para el balanceo.
-    \item \textbf{Nivel 1:} Es un controlador de estados discretos que es activado por eventos. Su estructura es jerárquica y concurrente para una mejor performance de las trayectorias. 
-    \item \textbf{Nivel 0:} Este nivel es un control también de estados discretos y activado por eventos, que se encarga de detectar condiciones de operación para proteger al sistema y asegurar la confiabilidad del mismo o actuar en casos de fallas y/o colisiones.
+    \item \textbf{Nivel 2:} Este controlador está compuesto por otros dos controladores de estados continuos en tiempo discretizado (controles de lazo cerrado PID), estos reciben consignas del controlador superior (Nivel 1) separado por 2 consignas, una de izaje y otra de traslación del carro. En base a dichas consignas planteamos un control genérico de 4 cuadrantes sobre los accionamientos electromecánicos. Los controladores son unos PID de movimiento con modulador de torque para izaje y traslación, y control tipo PD para el balanceo.
+    \item \textbf{Nivel 1:} Es un controlador de estados discretos activado por eventos. Su estructura es jerárquica y concurrente para una mejor performance de las trayectorias. 
+    \item \textbf{Nivel 0:} Este nivel es un control también de estados discretos activado por eventos, que se encarga de detectar condiciones de operación inseguras para proteger al sistema y asegurar la confiabilidad del mismo o actuar en casos de fallas y/o colisiones.
 \end{itemize}
 \par
-Estos controladores de los 3 niveles fueron desarrollados primero en Stateflow (componente de Matlab) para facilitar el desarrollo, testeo y simulación de su funcionamiento; ya que este es fácil de integrar con Matlab y Simulink en tiempo real. Así cuando se verificó que estaba bien desarrollado y cumplía con los requerimientos se implementó esa misma lógica en el entorno de desarrollo industrial CODESYS, siguiendo la norma IEC61131.
+Estos controladores de los 3 niveles fueron desarrollados primero en Stateflow y Simulink (componentes de Matlab) para facilitar el desarrollo, testeo y simulación de su funcionamiento; ya que estas herramientas del ecosistema de Matlab son fáciles de integrar. Así cuando se verificó que estaba bien el desarrollo y que el funcionamiento cumplía con los requerimientos se implementó esa misma lógica en el entorno de desarrollo industrial CODESYS, siguiendo la norma IEC 61131-3.
 
 
 \newpage
 
 
 \section{Desarrollo}
-Como se mencionó anteriormente, el desarrollo de cualquier proyecto requiere un enfoque sistemático y riguroso, y este proyecto no es una excepción. Para garantizar un resultado exitoso, lo primero que se debe hacer es obtener un \textbf{modelo físico-matemático} preciso y detallado que permita modelar y simular el sistema de la grúa de la forma más exacta posible, teniendo en cuenta las simplificaciones e hipótesis necesarias para hacer el modelo que mejor represente nuestro sistema.
+Como se mencionó anteriormente, el desarrollo de este proyecto requiere un enfoque sistemático y riguroso. Para seguir este enfoque, lo primero que se debe hacer es obtener un \textbf{modelo físico-matemático} preciso y detallado que permita modelar y simular el sistema de la grúa de la forma más exacta posible, teniendo en cuenta las simplificaciones e hipótesis necesarias para hacer el modelo que mejor represente nuestro sistema.
 \par
-Una vez que se tiene este modelo, es hora de avanzar al siguiente paso crítico: diseñar y optimizar el \textbf{sistema de control}. Este sistema de control es el corazón del proyecto, y se encarga de garantizar que la grúa se mueva con precisión y seguridad en todo momento. Para hacer esto, se deben llevar a cabo simulaciones exhaustivas para identificar y resolver cualquier problema potencial antes de pasar al siguiente paso.
+Una vez que se tiene dicho modelo, avanzamos al siguiente paso que es: diseñar y optimizar el \textbf{sistema de control}. Este sistema de control es el corazón del proyecto, y se encarga de garantizar que la grúa se mueva con precisión, eficiencia y seguridad en todo momento. Para hacer esto, se deben llevar a cabo simulaciones exhaustivas para identificar y resolver cualquier problema potencial antes de pasar al siguiente paso.
 \par
-Con el sistema de control diseñado y optimizado, es hora de pasar a la fase de prueba. Aquí, el autómata se convierte en código usando la plataforma de programación \textbf{CODESYS} y se simula el funcionamiento completo del sistema. Se evalúan el rendimiento y la precisión del sistema en condiciones de operación, y se realiza una evaluación rigurosa para garantizar que el sistema cumpla con todas las especificaciones requeridas.
+Con el sistema de control diseñado y optimizado, pasamos a la fase de prueba. Aquí, el autómata se convierte en código usando la plataforma de programación \textbf{CODESYS} y se simula el funcionamiento completo del sistema. Se evalúan el rendimiento y la precisión del sistema en condiciones de operación, y se realiza una evaluación rigurosa para garantizar que el sistema cumpla con todas las especificaciones requeridas.
 \par
 Finalmente, se presentan los \textbf{resultados} obtenidos y las \textbf{conclusiones} finales. Aquí se discuten los logros del proyecto, se identifican las lecciones aprendidas y se destacan los aspectos a mejorar.
 
@@ -97,14 +97,14 @@ Finalmente, se presentan los \textbf{resultados} obtenidos y las \textbf{conclus
 El sistema se compone de dos movimientos fundamentales, el \textbf{sistema de traslación horizontal (carro)}, y el \textbf{sistema movimiento vertical (izaje)}. Vamos a desarrollar las ecuaciones de ambos sistemas por separado y luego veremos cómo esos movimientos se combinan para dar como resultado las ecuaciones de movimiento del contenedor en el \textbf{plano x-y}.
 
 \subsection{Hipotesis}
-El sistema planteado es de una complejidad considerable, por lo cuál, para los fines académicos vamos a plantear una serie de simplificaciones o consideraciones sobre el modelo:
+El sistema real planteado es de una complejidad considerable, por lo cuál, para los fines académicos vamos a plantear una serie de simplificaciones o consideraciones sobre el modelo:
 \begin{itemize}
-	\item Consideraremos la estructura del pórtico como completamente rígida.
-	\item El carro que se desliza sobre la estructura, tiene un desplazamiento puramente horizontal y sin resbalamiento.
+	\item Consideraremos a la estructura del pórtico completamente rígida.
+	\item El carro que se desliza sobre la estructura, tiene un desplazamiento puramente horizontal y sin resbalamiento. Es tirado por cables a ambos lados del carro en un sistema cerrado que es movido por unos tambores ubicados en la casa de máquinas.
 	\item Los mecanismos de transmisión del carro se consideran rígidos.
-	\item Un único cable de acero equivalente de carro siempre tensado (tracción), con elasticidad longitudinal amortiguada.
-	\item Asumimos mecanismo equivalente (1 tambor con 1 freno de emergencia, 1 motor con 1 freno) con transmisión rígida.
-	\item Un cable de acero equivalente de izaje, con masa propia despreciable, elástico sólo a tracción (no soporta compresión).
+	\item Consideramos un único cable de acero equivalente de carro siempre tensado (a tracción), con elasticidad longitudinal amortiguada.
+	\item Asumimos mecanismo equivalente (1 tambor con 1 freno de emergencia, 1 motor con 1 freno).
+	\item El cable de acero equivalente de izaje, tiene masa propia despreciable, elástico sólo a tracción (no soporta compresión).
 	\item Vamos a suponer que no existen efectos externos sobre el carro ni la carga. Es decir, no hay efectos aerodinámicos al chocar con el viento.
 	\item El sistema está sometido a la acción de la aceleración de la gravedad, que se aplica verticalmente sobre la carga. Y también a la interacción de contacto o apoyo de la carga o spreader sobre el suelo.
 \end{itemize}
@@ -112,7 +112,7 @@ El sistema planteado es de una complejidad considerable, por lo cuál, para los 
 \subsection{Sistema de traslación del carro}
 \label{section:carro}
 
-Comencemos por el primer sistema de movimiento. Respecto del carro que se mueve en dirección horizontal, debemos tener en cuenta las siguientes especificaciones:
+Teniendo en cuenta el primer sistema de movimiento. El carro se mueve en dirección horizontal y debe cumplir con las siguientes especificaciones técnicas:
 \begin{itemize}
 	\item La posición $x_{t}$ varía desde $-30.0\ m$ (en el muelle) hasta $+50.0\ m$ (en el barco).
 	\item La velocidad máxima $v_{t}$ es de $4.0\ m/s$ (con o sin carga).
@@ -127,7 +127,7 @@ El carro se mueve sobre los rieles en la parte superior de la grúa en direcció
 	\caption{\label{fig:ref_grua} Sistema de referencia de los ejes x e y de la grúa.}
 \end{figure}
 
-Luego si analizamos la siguiente figura \ref{fig:sistema_carro} donde se esquematiza el sistema del carro, cable de carro y sistema de transmisión. Podemos ver que el carro se mueve sobre los rieles con un movimiento de rodadura pura (rotación sin deslizamiento), y que el sistema de transmisión del carro se compone de un motor, una caja reductora, un tambor y un freno.
+Luego si analizamos la siguiente figura \ref{fig:sistema_carro} donde se esquematiza el sistema del carro, cable de carro y sistema de transmisión. Podemos ver que el carro se mueve sobre los rieles con un movimiento de rodadura pura (rotación sin deslizamiento), y que el sistema de transmisión del carro se compone de un motor, una caja reductora, un tambor (que contiene el cable del carro) y un freno.
 
 \begin{figure}[h!]
 	\centering
@@ -235,7 +235,7 @@ Para el modelado del sistema de izaje tenemos que considerar las limitaciones qu
 
 \newpage
 
-En base a dichas especificaciones y en la siguiente figura \ref{fig:sistema_izaje} que muestra el modelo físico del sistema de izaje.
+En base a dichas especificaciones y según la siguiente figura \ref{fig:sistema_izaje} que muestra el modelo físico del sistema de izaje.
 
 \begin{figure}[h!]
 	\centering
@@ -286,14 +286,14 @@ Además considerando la siguiente ecuación \ref{eq:sistema_izaje_lh} que relac
 	Y_{t0}-l_{h}(t)\equiv x_{h}(t) \Rightarrow -\dot{l_{h}}(t)=\dot{x}_{h}(t)\equiv v_{h}(t)
 \end{equation}
 
-Y si además tenemos en cuenta el radio primitivo del tambor de izaje $r_{hd}$, podemos decir que:
+Y teniendo en cuenta el radio primitivo del tambor de izaje $r_{hd}$, podemos decir que:
 
 \begin{equation}
 	\label{eq:sistema_izaje_vh}
 	2\cdot v_{h}(t)=r_{hd}\cdot \omega_{hd}(t)\ \ \ ;\ \ \ F_{hw}(t)\cdot r_{hd}=T_{hdl}(t)
 \end{equation}
 
-Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}, \ref{eq:sistema_izaje_eje_lento}, \ref{eq:sistema_izaje_lh} y \ref{eq:sistema_izaje_vh}. Reemplazando y acomodando términos podemos llegar a la siguiente ecuación \ref{eq:sistema_izaje_final}:
+Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}, \ref{eq:sistema_izaje_eje_lento}, \ref{eq:sistema_izaje_lh} y \ref{eq:sistema_izaje_vh}. Reemplazando y reordenando términos podemos llegar a la siguiente ecuación \ref{eq:sistema_izaje_final}:
 
 \begin{equation}
 	\label{eq:sistema_izaje_final}
@@ -305,7 +305,7 @@ Si operamos algebraicamente con las ecuaciones \ref{eq:sistema_izaje_eje_rapido}
 	\end{matrix}
 \end{equation}
 
-En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje queda como se aprecia en la siguiente figura \ref{fig:sistema_izaje_simulink}:
+En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje en Simulink queda como se aprecia en la siguiente figura \ref{fig:sistema_izaje_simulink}:
 
 \begin{figure}[h!]
 	\centering
@@ -316,7 +316,7 @@ En base a esta ecuación \ref{eq:sistema_izaje_final} el sistema del izaje qued
 
 \newpage
 
-\subsection{Análisis de tipos de carga}
+\subsection{Análisis de tipos de carga y movimiento tipo péndulo}
 \label{section:carga}
 
 Previamente vimos que en la ecuación \ref{eq:sistema_izaje_final}, hay un término $F_{hw}(t)$ que representa la fuerza que experimenta el cable. El sistema de izaje está formado por 4 cables (1 por cada esquina del headblock) pero vamos a considerarlo como uno sólo con un modelo equivalente elástico-amortiguado dado por la siguiente ecuación \ref{eq:sistema_izaje_fuerza_cable}:
@@ -360,9 +360,9 @@ Algo más a tener en cuenta es que cuando la carga está apoyada hay una reacci�
 
 \subsubsection{Análisis con carga suspendida}
 
-Con lo visto previamente ya sabemos que, el cable equivalente no soporta compresión. Ya que en tal caso se doblaría. Por ende, si se denomina $l(t)$ a la longitud del cable fuera del tambor estirado y $l_{h}(t)$ a la longitud del cable desenrollado sin estar sometido a ninguna fuerza.
+Con lo visto previamente ya sabemos que, el cable equivalente no soporta compresión. Ya que en tal caso se doblaría. Por ende, si se denomina $l(t)$ a la longitud real del cable fuera del tambor (estirado) y $l_{h}(t)$ a la longitud del cable desenrollado sin estar sometido a ninguna fuerza.
 
-Además si consideramos pequeñas deformaciones, dentro del límite elástico. Es válida la Ley de Hooke para sistemas amortiguados. Es decir, que la fuerza que experimenta el cable es proporcional a la deformación del mismo según la ecuación \ref{eq:sistema_izaje_fuerza_cable}.
+Y considerando pequeñas deformaciones, dentro del límite elástico. Es válida la Ley de Hooke para sistemas amortiguados. Es decir, que la fuerza que experimenta el cable es proporcional a la deformación del mismo según la ecuación \ref{eq:sistema_izaje_fuerza_cable}.
 
 Entonces, si analizamos la siguiente imagen \ref{fig:sistema_pendulo} podemos ver que la longitud del cable $l(t)$ es mayor que la longitud del cable desenrollado $l_{h}(t)$ cuando la carga está suspendida. Por lo tanto, la fuerza que experimenta el cable es positiva y el sistema de izaje se estira. En el caso contrario, la fuerza del cable es nula.
 
@@ -375,7 +375,7 @@ Entonces, si analizamos la siguiente imagen \ref{fig:sistema_pendulo} podemos ve
 
 \newpage
 
-En base a este modelo podemos plantear la siguiente ecuación \ref{eq:sistema_pendulo_cinematica} que representa un cambio de coordenadas globales a locales de movimiento.
+En base a este modelo podemos plantear la siguiente ecuación \ref{eq:sistema_pendulo_cinematica} que representa el sistema de un péndulo y un cambio de coordenadas globales a locales de movimiento.
 
 \begin{equation}
 	\label{eq:sistema_pendulo_cinematica}
@@ -484,23 +484,23 @@ Llegados a este punto, procedemos a unir los siguientes modelos físicos dando l
 
 \section{Sistemas de control}
 
-Tal como se explicó anteriormente, el sistema físico a controlar consta de 2 movimientos principales: el de traslación del carro (horizontal, eje $x$) y el de izaje de la carga (vertical, eje $y$). Hay que tener en cuenta que ambos movimientos están acoplados ya que el sistema de izaje se desplaza junto con el movimiento del carro. Y además la carga (spreader y contenedor) se balancea, suspendida del carro que la traslada mediante los cables de izaje. Para poder controlar de forma eficiente estos movimientos se consideran los siguientes niveles de control para un autómata híbrido de control:
+Tal como se explicó anteriormente, el sistema físico a controlar consta de 2 movimientos principales: el de traslación del carro (horizontal, eje $x$) y el de izaje de la carga (vertical, eje $y$). Hay que tener en cuenta que ambos movimientos están acoplados ya que el sistema de izaje se desplaza junto con el movimiento del carro. Y además la carga (spreader + contenedor) se balancea, suspendida del carro que la sube/baja mediante los cables de izaje. Para poder controlar de forma eficiente estos movimientos se consideran los siguientes niveles de control para un autómata híbrido de control:
 
 \begin{itemize}
-	\item \textbf{Nivel 0:} Este es el control de seguridad que consiste en un autómata reducido y confiable, que es el encargado de actuar o accionar ante falla crítica de niveles inferiores y/o riesgo de seguridad.
-	\item \textbf{Nivel 1:} Este es el control supervisor global y es un control de estados discretos activados por eventos, con estructura jerárquica y/o concurrencia, para una operación suave y eficiente con coordinación y optimización de trayectorias, es un control de operación global del sistema que además cuenta con diagnóstico (alarmas y fallas).
+	\item \textbf{Nivel 0:} Este es el control de seguridad que consiste en un autómata reducido y confiable, que es el encargado de actuar o accionar ante una falla crítica de niveles inferiores y/o riesgo del sistema físico o de seguridad (colisiones).
+	\item \textbf{Nivel 1:} Este es el control supervisor global y es un control de estados discretos activados por eventos, con estructura jerárquica y concurrencia, para una operación suave y eficiente con coordinación y optimización de trayectorias, es un control de operación global del sistema.
 	\item \textbf{Nivel 2:} Acá se encuentran los controladores de movimiento de estados continuos en tiempo discreto. Son los que reciben las consignas de movimiento individuales del control supervisor para el control de cada uno de los movimientos principales.
 \end{itemize}
 
 \subsection{Nivel 2 - Controladores de movimiento}
-Los controladores de este nivel son del tipo PID para los movimientos de traslación del carro y de izaje de la carga, y además también tienen en cuenta el modelo de balanceo de la carga.
+Los controladores de este nivel son del tipo PID para los movimientos de traslación del carro y de izaje de la carga, y además se tiene en cuenta un controlador PD para el modelo de balanceo de la carga.
 
-Para cada uno de estos plantearemos transformadas de Laplace para luego obtener las funciones de transferencia del sistema. Una vez conocidas dichas funciones de transferencia, se procederá a obtener los polos y ceros del sistema, para así poder obtener los parámetros óptimos de los controladores PID.
+Para cada uno de estos plantearemos sus transformadas de Laplace para luego obtener las funciones de transferencia de cada sistema. Una vez conocidas dichas funciones de transferencia, se procederá a obtener los polos y ceros del sistema, para así poder obtener los parámetros óptimos de los controladores PID por método de sintonía serie.
 
 \newpage
 
 \subsubsection{Controlador de posición del carro}
-Recordando la ecuación \ref{eq:sistema_carro_final}, ecuación final que modela el movimiento del carro, si la expresamos en función de su velocidad. Teniendo en cuenta la simplificación $v_{td}(t)\simeq v_{t}(t)$ obtenemos la siguiente ecuación \ref{eq:sistema_carro_simplificado}:
+Recordando la ecuación \ref{eq:sistema_carro_final}, ecuación final que modela el movimiento del carro, si la expresamos en función de su velocidad. Sin considerar los torques de freno y teniendo en cuenta la simplificación $v_{td}(t)\simeq v_{t}(t)$ obtenemos la siguiente ecuación \ref{eq:sistema_carro_simplificado}:
 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado}
@@ -528,7 +528,7 @@ Así podemos reescribir la ecuación \ref{eq:sistema_carro_simplificado} como:
 	M_{eqt}\cdot\dot{v}_{t}(t)=\frac{T_{tm}(t)\cdot i_{t}}{r_{td}}-b_{eqt}\cdot v_{t} + 2\cdot F_{hw}(t) \cdot sin \left ( \theta(t) \right )
 \end{equation}
 
-Con esto ahora podemos decir que la ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, aplicando además tansformada de Laplace. Y aplicando el cambio de $F_{l}(s)=F_{hw}(s) \cdot sin \left ( \theta(s) \right )$ se puede escribir como:
+Con esto ahora podemos decir que la ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, aplicando tansformada de Laplace. Y aplicando el cambio de $F_{l}(s)=F_{hw}(s) \cdot sin \left ( \theta(s) \right )$ se puede escribir como:
 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado_laplace}
@@ -561,7 +561,7 @@ Como las entradas de control son de torque, las ecuaciones de interés son $G_{1
 	\omega_{G1t}=-\frac{b_{eqt}}{M_{eqt}}
 \end{equation}
 
-Siempre buscamos tener una respuesta del controlador óptima por lo cuál la misma debe ser más rápida que la velocidad de respuesta de la planta. Para esto aplicamos el método de sintonía serie y definimos que la frecuencia del controlador $\omega_{post}=10\cdot \omega_{G_{1t}}$ y para tener un sistema  subamortiguado se adopta un factor $n_{t}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. De esa forma obtenemos con el método las siguientes ganancias del controlador:
+Siempre buscamos tener una respuesta del controlador óptima por lo cuál la misma debe ser más rápida que la velocidad de respuesta de la planta. Para esto aplicamos el método de sintonía serie y definimos que la frecuencia del controlador $\omega_{post}=10\cdot \omega_{G_{1t}}$ y para tener un sistema subamortiguado se adopta un factor $n_{t}=2.5$ correspondiente a un factor de amortiguamiento de $\xi =0.75$. De esa forma obtenemos con el método las siguientes ganancias del controlador:
 
 \begin{itemize}
 	\item Proporcional $\rightarrow K_{pc} = M_{eqt}\cdot n_{t}\cdot {\omega_{post}}^{2} = 1.961 \cdot 10^6$
@@ -574,7 +574,7 @@ Así llegamos a la ecuación genérica del control PID de movimiento horizontal 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado_laplace_controlador}
 	T_{mc}^{*}(s)=G_{T}(s)\left [ K_{dc}+\frac{1}{s}\cdot K_{pc}+\frac{1}{s^{2}}\cdot K_{ic} \right ] e_{dxt}(s)
-\end{equation}'
+\end{equation}
 
 Podemos observar que el error a medir es de velocidad, no de posición. Esto se debe a que el controlador planteado utiliza 2 integradores para evitar el uso de derivadores, que amplifican el ruido. El diagrama de bloques nos queda:
 
@@ -588,7 +588,7 @@ Podemos observar que el error a medir es de velocidad, no de posición. Esto se 
 
 \subsubsection{Controlador del izaje de la carga}
 
-Si analizamos ahora el sistema de izaje de la carga y tomando el modelo dinámico dado por la ecuación \ref{eq:sistema_izaje_final}. Reescribiendo $M_{eqh}$ y $b_{eqh}$:
+Si analizamos ahora el sistema de izaje de la carga y tomamos el modelo dinámico dado por la ecuación \ref{eq:sistema_izaje_final}, sin considerar los torques de frenado. Reescribiendo $M_{eqh}$ y $b_{eqh}$ como:
 
 \begin{equation}
 	\label{eq:sistema_izaje_masa_equivalente}
@@ -600,7 +600,7 @@ Si analizamos ahora el sistema de izaje de la carga y tomando el modelo dinámic
 	b_{eqh} = \frac{{i_{h}}^{2}b_{hm}+b_{hd}}{{r_{hd}}^{2}}
 \end{equation}
 
-Así despejando la ecuación \ref{eq:sistema_izaje_final} junto con las que acabamos de mencionar. Si la expresamos en función de su velocidad (para evitar usar un derivador) y se trata a la fuerza de la carga como una perturbación del sistema. Podemos aplicar transformada de Laplace y obtener las siguientes ecuaciones:
+Así despejando la ecuación \ref{eq:sistema_izaje_final} junto con las que acabamos de mencionar. Expresandolas en función de su velocidad (para evitar usar un derivador) y si tratamos a la fuerza de la carga como una perturbación del sistema. Podemos aplicar transformada de Laplace y obtener las siguientes ecuaciones:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace}
@@ -613,7 +613,7 @@ Reagrupando:
 	2\cdot \left ( M_{eqh}\cdot s+b_{eqh} \right )\cdot V_{lh}(s) = \frac{T_{hm}(s)\cdot i_{h}}{r_{hd}}+ F_{hw}(s)
 \end{equation}
 
-Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la ecuación \ref{eq:sistema_izaje_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque $T_{hm}(s)$ y la tensión a la que se somete el cable $F_{hw}(s)$. Donde esto se puede expresar según las siguientes ecuaciones las funciones de transferencia para cada entrada:
+Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la ecuación \ref{eq:sistema_izaje_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque $T_{hm}(s)$ y la tensión a la que se somete el cable $F_{hw}(s)$. Así podemos expresar las funciones de transferencia para cada entrada como:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace_G1h}
@@ -625,7 +625,7 @@ Donde $V_{lh}(t)$ representa a la velocidad del izaje. Y como podemos ver en la 
 	G_{2h}(s)=\frac{V_{lh}(s)}{F_{hw}(s)}=\frac{2}{M_{eqh}\cdot s+b_{eqh}}
 \end{equation}
 
-Como la entrada de control es de torque, la ecuación de interés es $G_{1h}(s)$. Que tiene un polo que está ubicado en:
+La entrada de control es de torque, por lo tanto la ecuación de interés es $G_{1h}(s)$. Que tiene un polo que está ubicado en:
 
 \begin{equation}
 	\label{eq:sistema_izaje_simplificado_laplace_polos}
@@ -731,7 +731,7 @@ El siguiente paso es obtener las fuerzas que intervienen en el sistema, por esto
 	\frac{d}{dt}\left ( \frac{\partial L}{\partial \dot{q}_{i}} \right ) -\frac{\partial L}{\partial q_{i}}=F_{i}-b_{i}\cdot \dot{q}_{i}
 \end{equation}
 
-Si evaluamos esta ecuación respecto de las coordenadas generalizadas, $x_{t}(t)$ posición del carro, y $\theta(t)$ el ángulo de balanceo. Obtenemos:
+Evaluando esta ecuación respecto de las coordenadas generalizadas, $x_{t}(t)$ posición del carro, y $\theta(t)$ el ángulo de balanceo. Obtenemos:
 
 \begin{equation}
 	\label{eq:lagrangiano_coordenadas_generalizadas}
@@ -745,28 +745,28 @@ Si consideramos pequeños desplazamientos, ángulos menores a $22°$, podemos co
 	\left \{\begin{matrix}(m_t+m_l)\ddot{x_t}(t)+m_l\ l\ \ddot{\theta }(t)=F_t(t)-b_{eqt}\ \dot{x_t}(t)\\ \ddot{x_t}(t)+l\ \ddot{\theta }(t)+g\ \theta (t)=0\end{matrix}\right.
 \end{equation}
 
-Si tenemos en cuenta la ecuación del modelo dinámico del carro, ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, despejando la aceleración y despreciando la fuerza de la carga, obtenemos:
+Teniendo en cuenta la ecuación del modelo dinámico del carro, ecuación \ref{eq:sistema_carro_simplificado_params_equivalentes}, despejando la aceleración y despreciando la fuerza de la carga, obtenemos:
 
 \begin{equation}
 	\label{eq:ddx_t}
 	\ddot{x_t}(t)=\frac{F_t(t)-b_{eqt}\ \dot{x_t}(t)}{M_{eqt}}
 \end{equation}
 
-Reemplazando la ecuación \ref{eq:ddx_t} en la segunda ecuación de \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y despejando $F_{t}(t)$ obtenemos:
+Reemplazando la ecuación \ref{eq:ddx_t} en la segunda ecuación \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y despejando $F_{t}(t)$ obtenemos:
 
 \begin{equation}
 	\label{eq:F_t}
 	F_{t}(t)=-M_{eqt}\ \left ( l\ \ddot{\theta}(t)+g\ \theta(t) \right )+b_{eqt}\ \dot{x_t}(t)
 \end{equation}
 
-Si despejamos $F_{t}(t)$ de la primera ecuación de \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y la igualamos con la ecuación \ref{eq:F_t}, operando se obtiene:
+Si despejamos $F_{t}(t)$ de la primera ecuación \ref{eq:lagrangiano_coordenadas_generalizadas_simplificadas} y la igualamos con la ecuación \ref{eq:F_t}, operando se obtiene:
 
 \begin{equation}
 	\label{eq:F_t_2}
 	(m_t+m_l)\ \ddot{x_t}(t)=-(M_{eqt}+m_l)\ l\ \ddot{\theta}(t)-M_{eqt}\ g\ \theta(t)
 \end{equation}
 
-Si expresamos dicha ecuación en función de la velocidad del carro y aplicamos transformada de Laplace, obtenemos:
+Expresando dicha ecuación en función de la velocidad del carro y aplicamos transformada de Laplace, obtenemos:
 
 \begin{equation}
 	\label{eq:laplace_F_t_2}
@@ -794,7 +794,7 @@ Si vemos la expresión de un controlador PD en el dominio de la variable ``s'' t
 	G_{PD}(s)=K_p+K_d\cdot s
 \end{equation}
 
-Recordemos que lo que buscamos con este controlador es regular el balanceo de la carga con lo cuál si acción de control impacta en el movimiento del carro. Este controlador PD va en serie con el controlador PID del carro y con la planta. Así la función de transferencia nos queda como:
+Recordemos que lo que buscamos con este controlador es regular el balanceo de la carga con lo cuál la acción de control impacta en el movimiento del carro. Este controlador PD va en serie con el controlador PID del carro y con la planta. Así la función de transferencia nos queda como:
 
 \begin{equation}
 	\label{eq:funcion_transferencia_controlador}
@@ -822,7 +822,7 @@ Quedando así el controlador en función de la masa de la carga y la longitud de
 	v_t^{*}=e_\theta(t)\cdot K_p+\dot{e_{\theta}}(t)\cdot K_d
 \end{equation}
 
-Donde $e_\theta(t)$ es el error entre la consigna y el ángulo real de la carga. A continuación vemos como nos queda el diagrama en Simulink de este controlador:
+Donde $e_\theta(t)$ es el error entre la consigna y el ángulo real de la carga. A continuación vemos como queda el diagrama en Simulink de este controlador:
 
 \begin{figure}[h!]
 	\centering
