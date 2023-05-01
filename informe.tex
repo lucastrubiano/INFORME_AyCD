@@ -625,7 +625,7 @@ Reordenando la ecuación \ref{eq:sistema_carro_simplificado_laplace} obtenemos:
 	\left ( M_{eqt}\cdot s+b_{eqt} \right )\cdot V_{t}(s) = \frac{T_{tm}(s)\cdot i_{t}}{r_{td}}+ 2\cdot F_{l}(s)
 \end{equation}
 
-Donde $V_{t}(t)$ es la velocidad del carro. Y como se puede apreciar en la ecuación \ref{eq:sistema_carro_simplificado_laplace_reordenado} se tienen 3 entradas del sistema: el torque del motor del carro $T_{tm}(s)$, el torque del freno de operación del carro $T_{tb}$ y la fuerza que ejerce la carga sobre el carro $2\cdot F_{l}(s)$. Así, se tiene una función de transferencia para cada una de ellas:
+Donde $V_{t}(t)$ es la velocidad del carro. Y como se puede apreciar en la ecuación \ref{eq:sistema_carro_simplificado_laplace_reordenado} se tienen 2 entradas del sistema: el torque del motor del carro $T_{tm}(s)$ y la fuerza que ejerce la carga sobre el carro $2\cdot F_{l}(s)$ (que sería una perturbación). Así, se tiene una función de transferencia para cada una de ellas:
 
 \begin{equation}
 	\label{eq:sistema_carro_simplificado_laplace_G1t}
@@ -1493,7 +1493,13 @@ En una segunda etapa, se diseñó un controlador en tiempo continuo compuesto po
 
 En cuánto al nivel 1 se planteó un autómata híbrido de control y supervisión, de estados discretos activado por eventos. Para el nivel 0 se planteó un autómata de seguridad o protección, también de estados discretos activado por eventos, que se activa en caso de una falla en el sistema. En ambos niveles se implementó concurrencia de subrutinas. Finalmente, se implementaron los autómatas de control supervisor global y de seguridad siguiendo el lenguaje SFC en el entorno de programación industrial (CODESYS) siguiendo la norma IEC 61131-3. Además, se realizó una co-simulación entre el entorno de simulación industrial y simulink, utilizando los conceptos de ``Model-in-the-loop'' y ``Software-in-the-loop'', lo que permitió una mayor familiarización con entornos de trabajo profesional.
 
-Como posibles mejoras, se sugiere optimizar la trayectoria para que esté más cerca de los contenedores, lo que permitiría ahorrar tiempo y energía. Además, en el caso de una parada de emergencia, se podría detener el sistema de manera más rápida al tener frenos mecánicos.
+Como posibles mejoras, se sugiere optimizar la trayectoria para que se aprovechen mejor los espacios libres, lo que permitiría ahorrar tiempo y energía.
+
+% Esto es teniendo en cuenta que ahora que disponemos de sistemas de frenado mecánicos más eficientes podemos realizar trayectorias más complejas con mejor precisión. Y llegado el caso que hubiera un problema que necesitara parar todo el sistema esto se puede hacer de forma rápida y segura gracias a dichos frenos mecánicos.
+
+Adicional a esto, otra mejora sustancial que se podría hacer es la de mejorar los sobrepicos de la velocidad del carro. Que es generado por el atraso que hay entre la consigna y la velocidad real que este sigue como consecuencia del controlador del péndulo.
+
+Por último, otra mejora que tendría mucho impacto en los tiempos de operación es la de mejorar los tiempos de pesaje de la carga.
 
 En conclusión, la realización de este proyecto fue muy beneficiosa tanto desde el punto de vista de la cátedra ``Autómatas y Control Discreto'' como para las materias previas, permitiendo afianzar conceptos previamente adquiridos que son fundamentales para la preparación para la vida profesional.
 
