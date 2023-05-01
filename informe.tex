@@ -462,6 +462,87 @@ Donde si además consideramos las ecuaciones \ref{eq:sistema_pendulo_dinamica_ca
 	\label{fig:sistema_pendulo_cinematica_dinamica}
 \end{figure}
 
+\subsection{Controladores de torque de los accionamientos}
+\label{section:controladores_torque}
+
+En este apartado vamos a modelar una respuesta más aproximada a la realidad de cómo se comportan los moduladores de torque de los accionamientos.
+
+Para esto vamos a considerar que a la consigna de torque debemos aplicarle un filtro de primer orden, es decir, que vamos a obtener un modulador de torque idealizado equivalente, con un modelo simplificado de primer orden LTI en tiempo ``continuo'' con Limitador de Torque máximo
+(saturación), para protección del motor.
+
+Las ecuaciones para el controlador de torque interno del carro son:
+
+\begin{equation}
+	\label{eq:controlador_torque_carro_1}
+	\tau_{tm} \cdot \dot{T_{tm}}(t) = T_{tm}^{*}(t) - T_{tm}(t)
+\end{equation}
+
+\begin{equation}
+	\label{eq:controlador_torque_carro_2}
+	T_{tm}^{*}(t) = min \left( + T_{tm Max} , max(-T_{tm Max}, T_{tm}^{*}(k \cdot T_{s2})) \right)
+\end{equation}
+
+Quedando el diagrama de las ecuaciones \ref{eq:controlador_torque_carro_1} y \ref{eq:controlador_torque_carro_2} como se muestra en la figura \ref{fig:controlador_torque_carro}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/controlador_interno_torque_carro.png}
+	\caption{Diagrama en Simulink controlador de torque interno del carro.}
+	\label{fig:controlador_torque_carro}
+\end{figure}
+
+Y las ecuaciones para el controlador de torque interno del izaje son:
+
+\begin{equation}
+	\label{eq:controlador_torque_izaje_1}
+	\tau_{hm} \cdot \dot{T_{hm}}(t) = T_{hm}^{*}(t) - T_{hm}(t)
+\end{equation}
+
+\begin{equation}
+	\label{eq:controlador_torque_izaje_2}
+	T_{hm}^{*}(t) = min \left( + T_{hm Max} , max(-T_{hm Max}, T_{hm}^{*}(k \cdot T_{s2})) \right)
+\end{equation}
+
+Quedando el diagrama de las ecuaciones \ref{eq:controlador_torque_izaje_1} y \ref{eq:controlador_torque_izaje_2} como se muestra en la figura \ref{fig:controlador_torque_izaje}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/controlador_interno_torque_izaje.png}
+	\caption{Diagrama en Simulink controlador de torque interno del izaje.}
+	\label{fig:controlador_torque_izaje}
+\end{figure}
+
+
+\subsection{Modelos de los frenos mecánicos}
+\label{section:modelos_frenos}
+
+En el sistema planteado se consideran tres frenos mecánicos, uno para el carro (operación) y dos para el izaje (operación y emergencia). Dichos frenos son de tipo mecánico con resortes, que están por defecto en condición normalmente cerrados. Y los mismos se abren cuando le damos la señal.
+
+Las ecuaciones que modelan este comportamiento son, para el caso de los frenos desenergizados (de izaje):
+
+\begin{equation}
+	\label{eq:freno_desenergizado}
+	T_{hb} (t, {\color{blue}BRK_h = Off}) = min(+ T_{hb Max}, max(-T_{hb Max}, -b_{hb} \cdot \omega_{hm}(t)))
+\end{equation}
+
+Y para el caso de los frenos energizados:
+
+\begin{equation}
+	\label{eq:freno_energizado}
+	T_{hb} (t, {\color{blue}BRK_h = On}) = 0\ N\cdot m
+\end{equation}
+
+Se repite el mismo comportamiento para el freno del carro, pero con las variables correspondientes. Y de igual forma para el freno de emergencia del izaje.
+
+El modelo en Simulink para las ecuaciones \ref{eq:freno_desenergizado} y \ref{eq:freno_energizado} se muestra en la figura \ref{fig:freno_mecanico}.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/freno_mecanico.png}
+	\caption{Diagrama en Simulink del modelo de los frenos mecánicos.}
+	\label{fig:freno_mecanico}
+\end{figure}
+
 \newpage
 
 Llegados a este punto, procedemos a unir los siguientes modelos físicos dando lugar al modelo de la planta que se muestra en la figura \ref{fig:sistema_completo}.
@@ -469,6 +550,8 @@ Llegados a este punto, procedemos a unir los siguientes modelos físicos dando l
 	\item Carro \ref{section:carro}
 	\item Izaje \ref{section:izaje}
 	\item Carga \ref{section:carga}
+	\item Controladores internos de torque \ref{section:controladores_torque}
+	\item Modelos de los frenos mecánicos \ref{section:modelos_frenos}
 \end{itemize}
 
 \begin{figure}[h!]
